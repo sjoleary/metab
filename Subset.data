@@ -1,26 +1,12 @@
 #### Subsetting ####
 
-## with the terminal (Meren code) of the 100 first sequences/reads per sample
-# history:
-# cd miseq_sbl\ \(copy\)/
-# ls *fastq > files.txt
-# vi files.txt
-# head MI.M03992_0123.001.FLD0379.SCI017267_R36_R1.fastq
-# head -n 400 MI.M03992_0123.001.FLD0379.SCI017267_R36_R1.fastq
-# for l in `cat files.txt`; do head -n 400 $l.fastq > $l-mini.fastq; done
-# ls
-# ls -lh 
-## and me
-# mkdir SBL_subset
-# mv *mini.fastq SBL_subset100
-#
-
 ## Subsetting with the terminal (Meren code) of the 1000 first sequences/reads per sample
-# cd miseq_sbl\ \(copy\)/
+# cd /home/udem/Documents/miseq_sbl/ITS/ \(copy\)/
 # ls *fastq > files.txt
 # vi files.txt
-# head MI.M03992_0123.001.FLD0379.SCI017267_R36_R1.fastq
-# head -n 4000 MI.M03992_0123.001.FLD0379.SCI017267_R36_R1.fastq
+# :q
+# head FLD0193_ITS_S1_R1.fastq
+# head -n 2000 FLD0193_ITS_S1_R1.fastq
 # for l in `cat files.txt`; do head -n 4000 $l.fastq > $l-mini.fastq; done
 # ls
 # ls -lh 

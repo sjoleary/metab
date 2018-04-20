@@ -47,7 +47,7 @@ library(dada2); packageVersion("dada2")
 # for f in *; do mv "$f" "${f:12}"; done
 
 #### Paths ####
-path <- "seq"
+path <- "test/"
 list.files(path)
 
 # Read in the names of the fastq files, and perform some string manipulation to get lists of the forward and reverse fastq files in matched order:
@@ -228,7 +228,7 @@ table(nchar(getSequences(seqtab)))
 
 #### Remove chimeras ####
 seqtab.nochim <- removeBimeraDenovo(seqtab, 
-                                    method="pooled", # The samples in the sequence table are all pooled together for bimera identification. Default = consensus
+                                    method="consensus", # The samples in the sequence table are all pooled together for bimera identification. Default = consensus
                                     multithread=TRUE, verbose=TRUE) 
 # Identified 623 bimeras out of 3845 input sequences
 # method="pooled" is longer but identified 623 bimeras vs 502 for method="consensus" (!!!)
