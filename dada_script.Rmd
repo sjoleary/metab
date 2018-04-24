@@ -63,15 +63,15 @@ sample.names
 fnFs <- file.path(path, fnFs)
 fnRs <- file.path(path, fnRs)
 
-#### Examine quality profiles of forward and reverse reads ####
-##  Visualize the quality profiles by sample or all combined
-# Forward Reads
+#### Examine quality profiles ####
+## This is to help with filtering and trimming choices
+##  Visualize the quality profiles by sample
 plotQualityProfile(fnFs[1:4], n = 5e+05) # forward reads
-plotQualityProfile(fnFs, n = 5e+06, aggregate = TRUE) 
-
-# Reverse Reads
 plotQualityProfile(fnRs[1:4], n = 5e+05) # reverse reads
-plotQualityProfile(fnRs, n = 5e+06, aggregate = TRUE) 
+
+##  Visualize the quality profiles for all the samples on average
+plotQualityProfile(fnFs, n = 5e+06, aggregate = TRUE) # forward reads
+plotQualityProfile(fnRs, n = 5e+06, aggregate = TRUE) # reverse reads
 
 # NB In the figures: the mean is in green, the median the solid orange line and the quartiles are the dotted orange lines.
 # Phred score of 10 => 90 % precision, 20 => 99 % precision, 30 => 99.9 % precision
@@ -99,7 +99,7 @@ out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs,
 # MaxEE sets the maximum number of “expected errors” allowed in a read, which is a better filter than simply averaging quality scores.
 # /!\ For common ITS amplicon strategies, it is undesirable to truncate reads to a fixed length due to the large amount of length variation at that locus.
 
-# no difference up to truncQ=6 (probably mean it is already been filtered by Genome Quebec). When truncQ=7 only 0.2707456 % kept.
+# All amplicons were > 300 bp
 
 # Primers used are:
 # ITS3_KYO2	GATGAAGAACGYAGYRAA = 18bp (forward)
