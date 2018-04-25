@@ -1,6 +1,17 @@
 #### Subsetting ####
 
-## Subsetting with the terminal (Meren code) of the 1000 first sequences/reads per sample
+## Subsetting from the terminal 
+
+#Subsample 10000 read pairs from two large paired FASTQ files (remember to use the same random seed to keep pairing):
+# https://github.com/lh3/seqtk
+
+# cd /home/udem/Documents/miseq_sbl/ITS/
+# seqtk sample -s100 read1.fq 10000 > sub1.fq
+# seqtk sample -s100 read2.fq 10000 > sub2.fq
+
+
+
+## Meren's code, the 1000 first sequences/reads per sample
 # cd /home/udem/Documents/miseq_sbl/ITS/ \(copy\)/
 # ls *fastq > files.txt
 # vi files.txt
