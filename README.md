@@ -16,6 +16,10 @@ Amplicons obtained through DNA amplification targeting the ITS region (fungal sp
 
 ## Acknowledgements
 Largely inspired by the tutorials of [_DADA2_](https://benjjneb.github.io/dada2/index.html) and [_Phyloseq_](https://joey711.github.io/phyloseq/)
+/n
+Corresponding articles:
+*Callahan B. J., McMurdie P. J., Rosen M. J., Han A. W., Johnson A. J. A., & Holmes S. P. (2016) DADA2: high-resolution sample inference from Illumina amplicon data. Nature methods, 13(7), 581-583
+*McMurdie P. J. & Holmes S. P. (2013) Phyloseq: An R Package for Reproducible Interactive Analysis and Graphics of Microbiome Census Data. PLoS ONE. 8(4):e61217
 
 ## Install packages
 ```
