@@ -5,26 +5,197 @@ date: "9 mars 2018"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# ITS Paired
 
-## R Markdown
+#### Packages ####
+library(phyloseq)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+#### Data import and processing ####
+# Sample data
+load("data/soil.rda")
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Taxonomy table
+load("data/.rdata")
 
-```{r cars}
-summary(cars)
-```
+# ASV table
+load("data/.rdata")
 
-## Including Plots
+# Construct phyloseq object (straightforward from dada2 outputs)
+ps <- phyloseq(otu_table(asv_table, taxa_are_rows=FALSE), 
+               sample_data(soil), 
+               tax_table(as.matrix(taxa_table)))
+ps
 
-You can also embed plots, for example:
+# Reorder factors
+sample_data(ps)$horiz = factor(sample_data(ps)$horiz, levels = c('L', 'F', 'H', 'Ae', 'B'))
+sample_data(ps)$myco = factor(sample_data(ps)$myco, levels = c('AM', 'mixed', 'ECM'))
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+#### Filtering and transformation ####
+ntaxa(ps)
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Remove ESV with no "real" reads if encountered
+ps = filter_taxa(ps, function(x) sum(x) > 0, TRUE)
+ntaxa(ps)
+
+# Subset of the dataset with only fungi
+ps.fungi = subset_taxa(ps, Kingdom=="k__Fungi")
+ntaxa(ps.fungi)
+
+# Remove singletons and doubletons
+ps.fungi.nosd = filter_taxa(ps.fungi, function(x) sum(x) > 2, TRUE)
+ntaxa(ps.fungi.nosd)
+
+## Shifted log transformation
+ps.fungi.nosd.log <- transform_sample_counts(ps.fungi.nosd, function(x) log(x+1))
+
+## Agglomerate taxa at the species level
+ps.fungi.nosd.log.sp = tax_glom(ps.nosd.log, "Species", NArm = FALSE) # NArm = FALSE because it keeps ESV not taxonomically assigned at the species level
+
+## Other transformation
+## e.g. Hellinger transformation
+ps.fungi.nosd.hel = transform_sample_counts(ps.fungi.nosd, function(x) sqrt(x/sum(x)))
+
+#### Exploration ####
+## Details on the object
+ntaxa(ps.fungi.nosd.log)
+nsamples(ps.fungi.nosd.log)
+rank_names(ps.fungi.nosd.log)
+sample_variables(ps.fungi.nosd.log)
+otu_table(ps.fungi.nosd.log)[1:2, 1:2]
+tax_table(ps.fungi.nosd.log)[1:5, 1:6]
+
+# Sequencing depth per samples
+plot_bar(ps.fungi.nosd, x = "ID", y = "Abundance", fill = "Kingdom") +
+  geom_bar(stat="identity", color = "black") +
+  labs(x = "Sample ID", y = "Reads abundance (untransformed)", title = "Distribution sequencing depth per sample")
+
+# reads per kingdom 
+plot_bar(ps.fungi.nosd.log, fill = "Phylum", x = "myco", y = "Abundance") +
+  facet_grid(~horiz) +
+  geom_bar(stat="identity", color = "black") +
+  theme(legend.text = element_text(size=8))
+# ggsave("phyloseq/saved/Kingdom.paired.ITS.pdf", width = 15, height = 10)
+
+#### Ordination ####
+myco_names <- c(`AM` = "Maple plots", `mixed` = "Mixed plots", `ECM` = "Beech plots")
+
+## nMDS with Bray-Curtis dissimilarity
+ord.nmds.bray <- ordinate(ps.fungi.nosd.log, method="NMDS", k = 2, try = 500, distance = "bray")
+
+plot_ordination(ps.fungi.nosd.log, ord.nmds.bray, type="samples", color = "horiz") +
+  geom_point(size = 8, alpha = 1) +
+  scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
+  xlab("Axis 1") +
+  ylab("Axis 2") +
+  coord_fixed() +
+  labs(caption = paste("Stress =", round(ord.nmds$stress, 2))) +
+  #facet_wrap(~myco, labeller = as_labeller(myco_names)) +
+  #stat_ellipse(type = "t", level = 0.8) +# 90% confidence interval
+  theme(text = element_text(size=25), strip.text = element_text(size=25))
+
+## nMDS with Sorensen dissimilarity
+ord.nmds.bin <- ordinate(ps.fungi.nosd.log, method="NMDS", k = 2, try = 2000, distance = "bray", binary =TRUE)
+
+plot_ordination(ps.fungi.nosd.log, ord.nmds.bin, type="samples", color = "horiz") +
+  geom_point(size = 8, alpha = 1) +
+  scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
+  xlab("Axis 1") +
+  ylab("Axis 2") +
+  coord_fixed() +
+  labs(caption = paste("Stress =", round(ord.nmds$stress, 2))) +
+  #facet_wrap(~myco, labeller = as_labeller(myco_names)) +
+  #stat_ellipse(type = "t", level = 0.8) +# 90% confidence interval
+  theme(text = element_text(size=25), strip.text = element_text(size=25))
+
+#### Permanova ####
+# Export data
+metadata <- as(sample_data(ps.fungi.nosd.log), "data.frame")
+
+## Bray-Curtis measure
+## horizon and myco effect with interaction
+perm.horiz.myco.bray <- adonis(phyloseq::distance(ps.fungi.nosd.log, method="bray") ~ horiz * myco, strata = metadata$block,
+       data = metadata,
+       permutations = 99999)
+
+## Test for the homogeneity of dispersion for Bray data
+betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log, method="bray"), metadata$myco)
+permutest(betadisp, permutations = 99999) 
+
+betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log, method="bray"), metadata$horiz)
+permutest(betadisp, permutations = 99999)
+
+## Sorensen measure
+## horizon and myco effect with interaction
+perm.horiz.myco.bin <- adonis(phyloseq::distance(ps.fungi.nosd.log, method="bray", binary = TRUE) ~ horiz * myco, strata = metadata$block,
+       data = metadata,
+       permutations = 99999)
+
+## Test for the homogeneity of dispersion for Bray data
+betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log, method="bray", binary = TRUE), metadata$myco)
+permutest(betadisp, permutations = 99999) 
+
+betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log, method="bray", binary = TRUE), metadata$horiz)
+permutest(betadisp, permutations = 99999)
+  
+#### Redundancy Analysis (RDA) ####
+ord.rda <- ordinate(ps.fungi.ord, formula = ps.fungi.ord ~ C+N+P+pH, method="RDA")
+evals <- ord.cca$CCA$eig
+
+# Get stat
+rs <- RsquareAdj(ord.rda) 
+pv <- anova.cca(ord.rda)
+
+# Check variance inflation factors 
+vif.cca(ord.rda)
+
+## Plot CCA with arrows for environmental data
+# Add the environmental variables as arrows
+arrowmat = vegan::scores(ord.cca, display = "bp")
+# Add labels, make a data.frame
+arrowdf <- data.frame(arrowmat)
+rownames(arrowdf) <- c("CN","inorgP","orgP","BrayP","pHCaCl2","ECEC")
+arrowdf <- data.frame(labels = c("CN","Pi","Po","BrayP","pHCaCl2","ECEC"), arrowmat)
+
+plot_ordination(ps.fungi.ord, vegan::scores(ord.cca, scaling=1), type="sites",  color = "horiz") + 
+  coord_fixed(evals[2] / evals[1]) +
+  geom_point(size = 8, alpha = 1) +
+  scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
+  #stat_ellipse(type = "t", level = 0.9, alpha =.3) + # 90% confidence interval
+  geom_segment(aes(xend = CCA1, yend = CCA2, x = 0, y = 0), size = 0.8, data = arrowdf, color = "black", arrow = arrow(length = unit(0.025, "npc"))) + 
+  geom_text(aes(x = CCA1*1.3, y = CCA2*1.3, color = NULL, label = labels), size = 6, data = arrowdf) +
+  facet_wrap(~myco, labeller = as_labeller(myco_names)) +
+  theme(text = element_text(size=20), strip.text = element_text(size=20)) +
+  labs(caption = paste("Adjusted R2 =", round(rs$adj.r.squared*100, 2), "%")) +
+  xlim(c(-1.3,1.3)) + ylim(c(-1.3,1.3))
+# ggsave("phyloseq/saved/CCA.log.paired.ITS.sp.pdf", width = 15, height = 15)
+
+
+
+
+## plot RDA for soil chemistry only
+# Check variance inflation factors 
+vif.cca(rda.X1)
+evals <- rda.X1$CCA$eig/sum(rda.X1$CCA$eig)
+
+myco_names <- c(`AM` = "Maple plots", `mixed` = "Mixed plots", `ECM` = "Beech plots")
+
+## Plot RDA with arrows for environmental data
+# Add the environmental variables as arrows
+arrowmat = vegan::scores(rda.X1, display = "bp", scaling = 1)
+# Add labels, make a data.frame
+arrowdf <- data.frame(arrowmat)
+rownames(arrowdf) <- c("CN","inorgP","orgP","BrayP","pHCaCl2","ECEC")
+arrowdf <- data.frame(labels = c("C:N","Pi","Po","labileP","pH","cations"), arrowmat)
+
+plot_ordination(ps.nosd.log.sp, vegan::scores(rda.X1, scaling = 1), type="sites",  color = "horiz") + 
+  coord_fixed(sqrt(evals[2] / evals[1])) +
+  geom_point(size = 7, alpha = 1) +
+  scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
+  #stat_ellipse(type = "t", level = 0.9, alpha =.3) + # 90% confidence interval
+  geom_segment(aes(xend = CAP1, yend = CAP2, x = 0, y = 0), size = .7, data = arrowdf, color = "black", arrow = arrow(length = unit(0.05, "npc"))) +
+  geom_text(aes(x = CAP1*1.15, y = CAP2*1.15, color = NULL, label = labels), size = 6, data = arrowdf) +
+  facet_wrap(~myco, labeller = as_labeller(myco_names)) +
+  theme(text = element_text(size=18), strip.text = element_text(size=25)) +
+  labs(x = paste("Constrained axis 1 (",round(evals[1]*100, 0),"%)"), y = paste("Constrained axis 2 (",round(evals[2]*100, 0),"%)")) +
+  xlim(c(-1.3,.4)) + ylim(c(-.55,.4))
+  
