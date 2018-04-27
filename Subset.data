@@ -1,30 +1,9 @@
 #### Subsetting ####
 
-## Subsetting from the terminal 
-
-#Subsample 10000 read pairs from two large paired FASTQ files (remember to use the same random seed to keep pairing):
+## from the terminal 
+## Subsample 10000 read pairs from two large paired FASTQ files (remember to use the same random seed to keep pairing):
 # https://github.com/lh3/seqtk
 
-# cd /home/udem/Documents/miseq_sbl/ITS/
-# seqtk sample -s100 read1.fq 10000 > sub1.fq
-# seqtk sample -s100 read2.fq 10000 > sub2.fq
+cd /home/udem/Documents/miseq_sbl/ITS_subs/
 
-
-
-## Meren's code, the 1000 first sequences/reads per sample
-# cd /home/udem/Documents/miseq_sbl/ITS/ \(copy\)/
-# ls *fastq > files.txt
-# vi files.txt
-# :q
-# head FLD0193_ITS_S1_R1.fastq
-# head -n 2000 FLD0193_ITS_S1_R1.fastq
-# for l in `cat files.txt`; do head -n 4000 $l.fastq > $l-mini.fastq; done
-# ls
-# ls -lh 
-
-## and me
-# mkdir SBL_subset
-# mv *mini.fastq SBL_subset1000
-#
-
-# Make phyloseq object
+for i in {1..81};do seqtk sample -s100 *S${i}_R1.fastq 1000 > S${i}_R1.fastq; seqtk sample -s100 *S${i}_R2.fastq 1000 > S${i}_R2.fastq; done

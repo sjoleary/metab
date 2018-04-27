@@ -19,7 +19,7 @@ library(dada2); packageVersion("dada2")
 # ‘1.5.8’
 
 ## Paths and lists ##
-path <- "test/"
+path <- "ITS_sub/"
 list.files(path)
 
 #### Read in the names of the fastq files, and perform some string manipulation to get lists of the forward and reverse fastq files in matched order
@@ -42,8 +42,8 @@ plotQualityProfile(fnFs[1:4], n = 5e+05) # forward reads
 plotQualityProfile(fnRs[1:4], n = 5e+05) # reverse reads
 
 ## Visualize the quality profiles for all the samples on average
-plotQualityProfile(fnFs, n = 5e+06, aggregate = TRUE) # forward reads
-plotQualityProfile(fnRs, n = 5e+06, aggregate = TRUE) # reverse reads
+#plotQualityProfile(fnFs, n = 5e+06, aggregate = TRUE) # forward reads
+#plotQualityProfile(fnRs, n = 5e+06, aggregate = TRUE) # reverse reads
 
 # NB: In the figures the mean is in green, the median the solid orange line and the quartiles are the dotted orange lines.
 # Phred score of 10 => 90 % precision, 20 => 99 % precision, 30 => 99.9 % precision
