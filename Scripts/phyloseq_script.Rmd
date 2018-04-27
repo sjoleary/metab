@@ -20,10 +20,10 @@ library(phyloseq)
 load("data/soil.rda")
 
 # Taxonomy table
-load("data/.rdata")
+load("taxo/.rdata")
 
 # ASV table
-load("data/.rdata")
+load("seqtab_nochim/.rdata")
 
 # Construct phyloseq object (straightforward from dada2 outputs)
 ps <- phyloseq(otu_table(asv_table, taxa_are_rows=FALSE), 

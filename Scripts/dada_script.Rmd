@@ -208,7 +208,7 @@ table(nchar(getSequences(seqtab.nochim)))
 
 #### Assign taxonomy ####
 
-taxa.paired <- assignTaxonomy(seqtab.nochim, "reference_database/sh_general_release_dynamic_s_01.12.2017.RefS.fasta", 
+taxo <- assignTaxonomy(seqtab.nochim, "reference_database/sh_general_release_dynamic_s_01.12.2017.RefS.fasta", 
                               minBoot = 50, #Default 50. The minimum bootstrap confidence for assigning a taxonomic level.
                               multithread=TRUE, verbose=TRUE)
 nrow(unname(taxa.paired)) #2688 for minboot = 50 21/02
