@@ -10,17 +10,19 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-# ITS Paired
+# Analysis of microbiological communities
 
-#### Packages ####
+## Load packages ####
 library(phyloseq)
+library(vegan)
+library(ggplot2)
 
 #### Data import and processing ####
 # Sample data
-load("data/soil.rda")
+soil <- read.csv('data/soil.csv', sep = ';')
 
 # Taxonomy table
-load("taxo/.rdata")
+load("data/taxo.rdata")
 
 # ASV table
 load("seqtab_nochim/.rdata")
