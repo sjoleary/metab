@@ -27,6 +27,6 @@ Corresponding articles:
 ```
 source('http://bioconductor.org/biocLite.R')
 biocLite('phyloseq')
-biocLite("dada2")
-install.packages(c("ggplot2", "vegan")
+biocLite('dada2')
+install.packages(c('ggplot2', 'vegan')
 ```
