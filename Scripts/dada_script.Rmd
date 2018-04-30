@@ -174,15 +174,15 @@ table(nchar(getSequences(seqtab.nochim)))
 # save(seqtab.nochim, file="data/seqtab.nochim")
 
 #### Assign taxonomy ####
-
-taxo <- assignTaxonomy(seqtab.nochim, "reference_database/sh_general_release_dynamic_s_01.12.2017.RefS.fasta", 
+# https://unite.ut.ee/repository.php
+taxo <- assignTaxonomy(seqtab.nochim, "reference_database/sh_general_release_dynamic_01.12.2017.fasta", 
                               minBoot = 50, #Default 50. The minimum bootstrap confidence for assigning a taxonomic level.
                               multithread=TRUE, verbose=TRUE)
 
 unique(unname(taxo[,7]))
-
+head(taxo)
 # save it
-# save(taxa.paired, file="data/taxo.rdata")
+# save(taxo, file="data/taxo.30.04.rdata")
 
 # NB1: dada2 does not throw away singleton reads. 
 # However, it does not infer biological sequence variants that are only supported by a single read - singletons are assumed too difficult to differentiate from errors. 
