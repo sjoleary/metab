@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dada2)
 
 ## Paths and lists ##
-path <- "ITS_sub/"
+path <- "data/ITS_sub/"
 list.files(path)
 
 #### Read in the names of the fastq files, and perform some string manipulation to get lists of the forward and reverse fastq files in matched order
@@ -39,8 +39,12 @@ fnRs <- file.path(path, fnRs)
 ## Examine quality profiles ##
 ## This is to help with filtering and trimming choices
 ##  Visualize the quality profiles by sample
-plotQualityProfile(fnFs[1:4], n = 5e+05) # forward reads
-plotQualityProfile(fnRs[1:4], n = 5e+05) # reverse reads
+plotQualityProfile(fnFs[1:4]) # forward reads
+plotQualityProfile(fnRs[1:4]) # reverse reads
+
+# All samples aggregated
+# plotQualityProfile(fnFs) # forward reads
+
 
 # NB: In the figures the mean is in green, the median the solid orange line and the quartiles are the dotted orange lines.
 # Phred score of 10 => 90 % precision, 20 => 99 % precision, 30 => 99.9 % precision
@@ -171,11 +175,14 @@ sum(seqtab.nochim)/sum(seqtab) #  percentage of the total sequence reads
 table(nchar(getSequences(seqtab.nochim)))
 
 # save sequence table
-# save(seqtab.nochim, file="data/seqtab.nochim")
+# save(seqtab.nochim, file="data/seqtab.nochim.rdata")
+
+# Exclude singletons and doubletons
+seqtab.nochim.nosd = seqtab.nochim[,colSums(seqtab.nochim) > 2]
 
 #### Assign taxonomy ####
 # https://unite.ut.ee/repository.php
-taxo <- assignTaxonomy(seqtab.nochim, "reference_database/sh_general_release_dynamic_01.12.2017.fasta", 
+taxo <- assignTaxonomy(seqtab.nochim.nosd, "reference_database/sh_general_release_dynamic_01.12.2017.fasta", 
                               minBoot = 50, #Default 50. The minimum bootstrap confidence for assigning a taxonomic level.
                               multithread=TRUE, verbose=TRUE)
 

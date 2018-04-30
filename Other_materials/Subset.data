@@ -5,4 +5,5 @@
 # https://github.com/lh3/seqtk
 
 #cd /home/udem/Documents/miseq_sbl/ITS_subs/
-for i in {1..81};do seqtk sample -s100 *S${i}_R1.fastq 1000 > S${i}_R1.fastq; seqtk sample -s100 *S${i}_R2.fastq 1000 > S${i}_R2.fastq; done
+for i in {1..81};do 
+seqtk sample -s100 *S${i}_R1.fastq 2000 > S${i}_R1.fastq; seqtk sample -s100 *S${i}_R2.fastq 2000 > S${i}_R2.fastq; done
