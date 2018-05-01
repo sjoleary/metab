@@ -140,17 +140,17 @@ Before starting, we must take a few precautions:<br />
 </div>
 <div id="commencons-lets-start" class="section level2">
 <h2>Commençons ! / <span style="color:darkblue"> Let’s start </span></h2>
-<p>Nous allons tout d’abord chargé la librairie DADA3. Vous devriez avoir la denière version: 1.6.0.<br />
+<p>Nous allons tout d’abord chargé la librairie DADA2. Vous devriez avoir la denière version: 1.6.0.<br />
 Puis nous allons créer une variable indiquant le chemin qui permettra d’accéder aux objets dont nous allons avoir besoin.<br />
 <span style="color:darkblue"> First, we’re going to load the DADA2 package. You should have the latest version : 1.6.0. Then we’re going to create a variable indicating the path which will allow to access the objects required for this pipeline. </span></p>
 <pre class="r"><code>library(dada2); packageVersion(&quot;dada2&quot;)</code></pre>
 <pre><code>## Loading required package: Rcpp</code></pre>
 <pre><code>## [1] '1.6.0'</code></pre>
-<pre class="r"><code>path &lt;- &quot;data/ITS_sub/&quot;</code></pre>
+<pre class="r"><code>path &lt;- &quot;~data/ITS_sub&quot;
+list.files(path)</code></pre>
+<pre><code>## character(0)</code></pre>
 <p>Vérifions ce qu’il y a au bout du chemin…<br />
 <span style="color:darkblue"> Let’s check where the path leads to… </span></p>
-<pre class="r"><code>list.files(path)</code></pre>
-<pre><code>## character(0)</code></pre>
 <div id="read-in-the-names-of-the-fastq-files-and-perform-some-string-manipulation-to-get-lists-of-the-forward-and-reverse-fastq-files-in-matched-order" class="section level4">
 <h4>Read in the names of the fastq files, and perform some string manipulation to get lists of the forward and reverse fastq files in matched order</h4>
 </div>
