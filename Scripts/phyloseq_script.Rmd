@@ -19,7 +19,7 @@ library(ggplot2)
 
 #### Data import and processing ####
 ## Sample data
-soiltab <- read.csv('data/soil.csv', sep = ';')
+soiltab <- read.table('data/soil.csv', sep = ';', row.names = 1, header = TRUE)
 
 # Taxonomy table
 load("data/taxotab.01.05.rdata")
@@ -28,14 +28,14 @@ load("data/taxotab.01.05.rdata")
 load("data/seqtab.nochim.rdata")
 
 # Construct phyloseq object (straightforward from dada2 outputs)
-ps <- phyloseq(otu_table(asv_table, taxa_are_rows=FALSE), 
-               sample_data(soil), 
-               tax_table(as.matrix(taxotab$tax)))
+ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
+               sample_data(soiltab), 
+               tax_table(as.matrix(taxo$tax)))
 ps
 
 # Reorder factors
-sample_data(ps)$horiz = factor(sample_data(ps)$horiz, levels = c('L', 'F', 'H', 'Ae', 'B'))
-sample_data(ps)$myco = factor(sample_data(ps)$myco, levels = c('AM', 'mixed', 'ECM'))
+sample_data(ps)$horiz = factor(sample_data(ps)$horizon, levels = c('L', 'F', 'H', 'Ae', 'B'))
+sample_data(ps)$myco = factor(sample_data(ps)$forest, levels = c('AM', 'mixed', 'ECM'))
 
 #### Filtering and transformation ####
 ntaxa(ps)
