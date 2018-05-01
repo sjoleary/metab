@@ -9,12 +9,14 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r , include=TRUE}
 
 # Analysis of microbiological communities
 
 ## Load packages ####
 library(phyloseq)
 library(vegan)
+library(ggplot2)
 
 #### Data import and processing ####
 ## Sample data
@@ -123,90 +125,64 @@ plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bin, type="samples", color = "hor
 metadata <- as(sample_data(ps.fungi.nosd.log.sp), "data.frame")
 
 ## Bray-Curtis measure
-## horizon and myco effect with interaction
-perm.horiz.forest.bray <- adonis(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray") ~ horizon * forest,
-       data = metadata,
-       permutations = 99999)
+## Horizon and forest effect with interaction and block
+adonis(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray") ~ horizon * forest,
+      strata = metadata$block,
+      data = metadata,
+      permutations = 99999)
 
-## Test for the homogeneity of dispersion for Bray data
-betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log, method="bray"), metadata$myco)
+## Test for the homogeneity of dispersion with Bray-Curtis measures
+betadisp <- betadisper(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray"), metadata$forest)
 permutest(betadisp, permutations = 99999) 
 
-betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log, method="bray"), metadata$horiz)
+betadisp <- betadisper(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray"), metadata$horizon)
 permutest(betadisp, permutations = 99999)
 
 ## Sorensen measure
-## horizon and myco effect with interaction
-perm.horiz.myco.bin <- adonis(phyloseq::distance(ps.fungi.nosd.log, method="bray", binary = TRUE) ~ horiz * myco, strata = metadata$block,
+## Horizon and forest effect with interaction and block
+adonis(phyloseq::distance(ps.fungi.nosd.log.sp, method="bray", binary = TRUE) ~ horizon * forest, strata = metadata$block,
        data = metadata,
        permutations = 99999)
 
 ## Test for the homogeneity of dispersion for Bray data
-betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log, method="bray", binary = TRUE), metadata$myco)
+betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log.sp, method="bray", binary = TRUE), metadata$forest)
 permutest(betadisp, permutations = 99999) 
 
-betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log, method="bray", binary = TRUE), metadata$horiz)
+betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log.sp, method="bray", binary = TRUE), metadata$horizon)
 permutest(betadisp, permutations = 99999)
   
 #### Redundancy Analysis (RDA) ####
-ord.rda <- ordinate(ps.fungi.ord, formula = ps.fungi.ord ~ C+N+P+pH, method="RDA")
-evals <- ord.cca$CCA$eig
+ord.rda <- ordinate(ps.fungi.nosd.log.sp, formula = ps.fungi.nosd.log.sp ~ Carbon+Nitrogen+pH, method="CAP", distance = "bray")
 
 # Get stat
-rs <- RsquareAdj(ord.rda) 
-pv <- anova.cca(ord.rda)
+RsquareAdj(ord.rda) 
+anova.cca(ord.rda)
 
 # Check variance inflation factors 
 vif.cca(ord.rda)
 
-## Plot CCA with arrows for environmental data
+## Quick plot
+plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling=1), type="sites",  color = "horizon") 
+
+## Full plot
 # Add the environmental variables as arrows
-arrowmat = vegan::scores(ord.cca, display = "bp")
+arrowmat = vegan::scores(ord.rda, display = "bp", scaling = 1)
 # Add labels, make a data.frame
 arrowdf <- data.frame(arrowmat)
-rownames(arrowdf) <- c("CN","inorgP","orgP","BrayP","pHCaCl2","ECEC")
-arrowdf <- data.frame(labels = c("CN","Pi","Po","BrayP","pHCaCl2","ECEC"), arrowmat)
+rownames(arrowdf) <- c("Carbon","Nitrogen","pH")
+arrowdf <- data.frame(labels = c("Carbon","Nitrogen","pH"), arrowmat)
 
-plot_ordination(ps.fungi.ord, vegan::scores(ord.cca, scaling=1), type="sites",  color = "horiz") + 
-  coord_fixed(evals[2] / evals[1]) +
-  geom_point(size = 8, alpha = 1) +
-  scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
-  #stat_ellipse(type = "t", level = 0.9, alpha =.3) + # 90% confidence interval
-  geom_segment(aes(xend = CCA1, yend = CCA2, x = 0, y = 0), size = 0.8, data = arrowdf, color = "black", arrow = arrow(length = unit(0.025, "npc"))) + 
-  geom_text(aes(x = CCA1*1.3, y = CCA2*1.3, color = NULL, label = labels), size = 6, data = arrowdf) +
-  facet_wrap(~myco, labeller = as_labeller(myco_names)) +
-  theme(text = element_text(size=20), strip.text = element_text(size=20)) +
-  labs(caption = paste("Adjusted R2 =", round(rs$adj.r.squared*100, 2), "%")) +
-  xlim(c(-1.3,1.3)) + ylim(c(-1.3,1.3))
-# ggsave("phyloseq/saved/CCA.log.paired.ITS.sp.pdf", width = 15, height = 15)
+# Get eigenvector values
+evals <- ord.rda$CCA$eig/sum(ord.rda$CCA$eig)
 
-
-
-
-## plot RDA for soil chemistry only
-# Check variance inflation factors 
-vif.cca(rda.X1)
-evals <- rda.X1$CCA$eig/sum(rda.X1$CCA$eig)
-
-myco_names <- c(`AM` = "Maple plots", `mixed` = "Mixed plots", `ECM` = "Beech plots")
-
-## Plot RDA with arrows for environmental data
-# Add the environmental variables as arrows
-arrowmat = vegan::scores(rda.X1, display = "bp", scaling = 1)
-# Add labels, make a data.frame
-arrowdf <- data.frame(arrowmat)
-rownames(arrowdf) <- c("CN","inorgP","orgP","BrayP","pHCaCl2","ECEC")
-arrowdf <- data.frame(labels = c("C:N","Pi","Po","labileP","pH","cations"), arrowmat)
-
-plot_ordination(ps.nosd.log.sp, vegan::scores(rda.X1, scaling = 1), type="sites",  color = "horiz") + 
+# plot
+plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling = 1), type="sites",  color = "horizon") + 
   coord_fixed(sqrt(evals[2] / evals[1])) +
-  geom_point(size = 7, alpha = 1) +
+  geom_point(size = 8, alpha = .5) +
   scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
-  #stat_ellipse(type = "t", level = 0.9, alpha =.3) + # 90% confidence interval
   geom_segment(aes(xend = CAP1, yend = CAP2, x = 0, y = 0), size = .7, data = arrowdf, color = "black", arrow = arrow(length = unit(0.05, "npc"))) +
   geom_text(aes(x = CAP1*1.15, y = CAP2*1.15, color = NULL, label = labels), size = 6, data = arrowdf) +
-  facet_wrap(~myco, labeller = as_labeller(myco_names)) +
+  facet_wrap(~forest, labeller = as_labeller(myco_names)) +
   theme(text = element_text(size=18), strip.text = element_text(size=25)) +
-  labs(x = paste("Constrained axis 1 (",round(evals[1]*100, 0),"%)"), y = paste("Constrained axis 2 (",round(evals[2]*100, 0),"%)")) +
-  xlim(c(-1.3,.4)) + ylim(c(-.55,.4))
-  
+  labs(x = paste("Constrained axis 1 (",round(evals[1]*100, 0),"%)"), y = paste("Constrained axis 2 (",round(evals[2]*100, 0),"%)"))
+```
