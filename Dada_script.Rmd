@@ -42,9 +42,12 @@ Vérifions ce qu'il y a au bout du chemin...
 ```{r path, include=TRUE}
 list.files(path)
 ```
+Normalement, vous devriez voir les noms des fichiers fastq.  
+<span style="color:darkblue"> Normally you should see the names of the fastq files </span>  
+  
+Nous allons maintenant inscrire ces noms dans deux variables pour distinguer 
+<span style="color:darkblue"> Read in the names of the fastq files, and perform some string manipulation to get lists of the forward and reverse fastq files in matched order </span>
 
-
-#### Read in the names of the fastq files, and perform some string manipulation to get lists of the forward and reverse fastq files in matched order
 # Sort ensures forward/reverse reads are in same order
 fnFs <- sort(list.files(path, pattern="_R1.fastq"))
 fnRs <- sort(list.files(path, pattern="_R2.fastq"))
