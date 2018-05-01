@@ -18,14 +18,14 @@ library(vegan)
 library(ggplot2)
 
 #### Data import and processing ####
-# Sample data
+## Sample data
 soiltab <- read.csv('data/soil.csv', sep = ';')
 
 # Taxonomy table
-load("data/taxo.rdata")
+load("data/taxotab.01.05.rdata")
 
 # ASV table
-load("seqtab_nochim/.rdata")
+load("data/seqtab.nochim.rdata")
 
 # Construct phyloseq object (straightforward from dada2 outputs)
 ps <- phyloseq(otu_table(asv_table, taxa_are_rows=FALSE), 
