@@ -15,7 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Load packages ####
 library(phyloseq)
 library(vegan)
-library(ggplot2)
 
 #### Data import and processing ####
 ## Sample data
@@ -34,21 +33,20 @@ ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE),
 ps
 
 # Reorder factors
-sample_data(ps)$horiz = factor(sample_data(ps)$horizon, levels = c('L', 'F', 'H', 'Ae', 'B'))
-sample_data(ps)$myco = factor(sample_data(ps)$forest, levels = c('AM', 'mixed', 'ECM'))
+sample_data(ps)$horizon = factor(sample_data(ps)$horizon, levels = c('L', 'F', 'H', 'Ae', 'B'))
+sample_data(ps)$forest = factor(sample_data(ps)$forest, levels = c('AS', 'Mixed', 'FG'))
+
+## Start directly from phyloseq object
+#load(file = "data/ps.rdata")
 
 #### Filtering and transformation ####
 ntaxa(ps)
 
-# Remove ESV with no "real" reads if encountered
-ps = filter_taxa(ps, function(x) sum(x) > 0, TRUE)
-ntaxa(ps)
-
-# Subset of the dataset with only fungi
+## Subset of the dataset with only fungi
 ps.fungi = subset_taxa(ps, Kingdom=="k__Fungi")
 ntaxa(ps.fungi)
 
-# Remove singletons and doubletons
+## Remove singletons and doubletons
 ps.fungi.nosd = filter_taxa(ps.fungi, function(x) sum(x) > 2, TRUE)
 ntaxa(ps.fungi.nosd)
 
@@ -56,7 +54,7 @@ ntaxa(ps.fungi.nosd)
 ps.fungi.nosd.log <- transform_sample_counts(ps.fungi.nosd, function(x) log(x+1))
 
 ## Agglomerate taxa at the species level
-ps.fungi.nosd.log.sp = tax_glom(ps.nosd.log, "Species", NArm = FALSE) # NArm = FALSE because it keeps ESV not taxonomically assigned at the species level
+ps.fungi.nosd.log.sp = tax_glom(ps.fungi.nosd.log, "Species", NArm = FALSE) # NArm = FALSE because it keeps ESV not taxonomically assigned at the species level
 
 ## Other transformation
 ## e.g. Hellinger transformation
@@ -72,55 +70,61 @@ otu_table(ps.fungi.nosd.log)[1:2, 1:2]
 tax_table(ps.fungi.nosd.log)[1:5, 1:6]
 
 # Sequencing depth per samples
-plot_bar(ps.fungi.nosd, x = "ID", y = "Abundance", fill = "Kingdom") +
+plot_bar(ps, x = "Sample", y = "Abundance", fill = "Kingdom") +
   geom_bar(stat="identity", color = "black") +
-  labs(x = "Sample ID", y = "Reads abundance (untransformed)", title = "Distribution sequencing depth per sample")
+  labs(x = "Sample ID", y = "Reads abundance")
 
-# reads per kingdom 
-plot_bar(ps.fungi.nosd.log, fill = "Phylum", x = "myco", y = "Abundance") +
-  facet_grid(~horiz) +
+plot_bar(ps.fungi,  x = "Sample", y = "Abundance", fill = "Kingdom") +
   geom_bar(stat="identity", color = "black") +
-  theme(legend.text = element_text(size=8))
-# ggsave("phyloseq/saved/Kingdom.paired.ITS.pdf", width = 15, height = 10)
+  labs(x = "Sample ID", y = "Reads abundance of fungi")
+
+plot_bar(ps.fungi,  x = "Sample", y = "Abundance", fill = "Phylum") +
+  geom_bar(stat="identity") +
+  labs(x = "Sample ID", y = "Reads abundance of fungi")
+
+plot_bar(ps.fungi, fill = "Phylum") +
+  geom_bar(stat="identity") +
+  facet_wrap(horizon~forest, ncol = 3, scales = "free_x") +
+  labs(x = "Sample ID", y = "Reads abundance of fungi")
 
 #### Ordination ####
-myco_names <- c(`AM` = "Maple plots", `mixed` = "Mixed plots", `ECM` = "Beech plots")
+myco_names <- c(`AS` = "Maple plots", `Mixed` = "Mixed plots", `FG` = "Beech plots")
 
 ## nMDS with Bray-Curtis dissimilarity
-ord.nmds.bray <- ordinate(ps.fungi.nosd.log, method="NMDS", k = 2, try = 500, distance = "bray")
+ord.nmds.bray <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 100, distance = "bray")
 
-plot_ordination(ps.fungi.nosd.log, ord.nmds.bray, type="samples", color = "horiz") +
-  geom_point(size = 8, alpha = 1) +
+## Quick plot
+plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "horizon")
+
+## Full plot
+plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "horizon") +
+  geom_point(size = 8, alpha = .5, show.legend = TRUE) +
   scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
-  xlab("Axis 1") +
-  ylab("Axis 2") +
+  labs(x = "Axis 1", y = "Axis 2", caption = paste("Stress =", round(ord.nmds.bray$stress, 2))) +
+  facet_wrap(~forest) +
+  stat_ellipse(type = "t", level = 0.8) + # 80% confidence interval ellispes
   coord_fixed() +
-  labs(caption = paste("Stress =", round(ord.nmds$stress, 2))) +
-  #facet_wrap(~myco, labeller = as_labeller(myco_names)) +
-  #stat_ellipse(type = "t", level = 0.8) +# 90% confidence interval
   theme(text = element_text(size=25), strip.text = element_text(size=25))
 
 ## nMDS with Sorensen dissimilarity
-ord.nmds.bin <- ordinate(ps.fungi.nosd.log, method="NMDS", k = 2, try = 2000, distance = "bray", binary =TRUE)
+ord.nmds.bin <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 100, distance = "bray", binary =TRUE)
 
-plot_ordination(ps.fungi.nosd.log, ord.nmds.bin, type="samples", color = "horiz") +
-  geom_point(size = 8, alpha = 1) +
+plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bin, type="samples", color = "horizon") +
+  geom_point(size = 8, alpha = .5, show.legend = TRUE) +
   scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
-  xlab("Axis 1") +
-  ylab("Axis 2") +
+  labs(x = "Axis 1", y = "Axis 2", caption = paste("Stress =", round(ord.nmds.bin$stress, 2))) +
+  facet_wrap(~forest) +
+  stat_ellipse(type = "t", level = 0.8) + # 80% confidence interval ellispes
   coord_fixed() +
-  labs(caption = paste("Stress =", round(ord.nmds$stress, 2))) +
-  #facet_wrap(~myco, labeller = as_labeller(myco_names)) +
-  #stat_ellipse(type = "t", level = 0.8) +# 90% confidence interval
   theme(text = element_text(size=25), strip.text = element_text(size=25))
 
 #### Permanova ####
 # Export data
-metadata <- as(sample_data(ps.fungi.nosd.log), "data.frame")
+metadata <- as(sample_data(ps.fungi.nosd.log.sp), "data.frame")
 
 ## Bray-Curtis measure
 ## horizon and myco effect with interaction
-perm.horiz.myco.bray <- adonis(phyloseq::distance(ps.fungi.nosd.log, method="bray") ~ horiz * myco, strata = metadata$block,
+perm.horiz.forest.bray <- adonis(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray") ~ horizon * forest,
        data = metadata,
        permutations = 99999)
 
