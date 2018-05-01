@@ -19,7 +19,7 @@ library(ggplot2)
 
 #### Data import and processing ####
 # Sample data
-soil <- read.csv('data/soil.csv', sep = ';')
+soiltab <- read.csv('data/soil.csv', sep = ';')
 
 # Taxonomy table
 load("data/taxo.rdata")
@@ -30,7 +30,7 @@ load("seqtab_nochim/.rdata")
 # Construct phyloseq object (straightforward from dada2 outputs)
 ps <- phyloseq(otu_table(asv_table, taxa_are_rows=FALSE), 
                sample_data(soil), 
-               tax_table(as.matrix(taxa_table)))
+               tax_table(as.matrix(taxotab$tax)))
 ps
 
 # Reorder factors
