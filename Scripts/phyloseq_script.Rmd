@@ -15,7 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Load packages ####
 library(phyloseq)
 library(vegan)
-library(ggplot2)
 
 #### Data import and processing ####
 ## Sample data
@@ -121,11 +120,11 @@ plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bin, type="samples", color = "hor
 
 #### Permanova ####
 # Export data
-metadata <- as(sample_data(ps.fungi.nosd.log), "data.frame")
+metadata <- as(sample_data(ps.fungi.nosd.log.sp), "data.frame")
 
 ## Bray-Curtis measure
 ## horizon and myco effect with interaction
-perm.horiz.forest.bray <- adonis(phyloseq::distance(ps.fungi.nosd.log.sp, method="bray") ~ horizon * forest,
+perm.horiz.forest.bray <- adonis(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray") ~ horizon * forest,
        data = metadata,
        permutations = 99999)
 
