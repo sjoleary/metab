@@ -12,7 +12,8 @@ Simon Morvan and Alexis Carteron,
 Université de Montréal
 
 ## Data
-Amplicons obtained through DNA amplification targeting the ITS region (fungal specific) and sequenced on an Illumina MiSeq plateform (paired-end 300 bp) 
+Amplicons obtained through DNA amplification targeting the ITS region (fungal specific) and sequenced on an Illumina MiSeq plateform (paired-end 300 bp). 
+Orignial sequenced data were subsampled, randomly selecting 1,000 pair-end reads per sample (i.e. 128,000 reads in total) to facilite running time in local machine. [_Seqtk_](https://github.com/lh3/seqtk) was used for the subsampling step.
 
 ## Acknowledgements
 Largely inspired by the tutorials of [_DADA2_](https://benjjneb.github.io/dada2/index.html) and [_Phyloseq_](https://joey711.github.io/phyloseq/)
