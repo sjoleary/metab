@@ -57,8 +57,8 @@ filtRs <- file.path(filt_path, paste0(sample.names, "_R_filt.fastq.gz"))
 # Filter the forward and reverse reads:
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, 
                      maxN=0,
-                     truncLen = c(290,290),
-                     maxEE=c(3,3), 
+                     truncLen = c(280,280),
+                     maxEE=c(2,2), 
                      truncQ=6,
                      rm.phix=TRUE,
                      trimLeft=c(18,20),
@@ -178,13 +178,13 @@ table(nchar(getSequences(seqtab.nochim)))
 # save(seqtab.nochim, file="data/seqtab.nochim.rdata")
 
 # Exclude singletons and doubletons
-seqtab.nochim.nosd = seqtab.nochim[,colSums(seqtab.nochim) > 2]
+seqtab.nochim.nosd = seqtab.nochim[,colSums(seqtab.nochim) > 200]
 
 #### Assign taxonomy ####
 # https://unite.ut.ee/repository.php
 taxo <- assignTaxonomy(seqtab.nochim.nosd, "reference_database/sh_general_release_dynamic_01.12.2017.fasta", 
                               minBoot = 50, #Default 50. The minimum bootstrap confidence for assigning a taxonomic level.
-                              multithread=TRUE, verbose=TRUE)
+                              multithread=FALSE, verbose=TRUE)
 
 unique(unname(taxo[,7]))
 head(taxo)
