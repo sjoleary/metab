@@ -13,7 +13,7 @@ Université de Montréal
 
 ## Data  
 From A. Carteron, S. Joly, M. Beigas, B.L. Turner, E. Laliberté. Major Changes in Soil Fungal Communities Across Soil Horizons and Between Adjacent Forests. In preparation  
-Amplicons obtained through DNA amplification targeting the ITS region (fungal specific) and sequenced on an Illumina MiSeq plateform (paired-end 300 bp). 
+Amplicons obtained through DNA amplification targeting the ITS region (fungal specific) and sequenced on an Illumina MiSeq plateform (paired-end 300 bp).  
 Orignial sequenced data were subsampled, randomly selecting 1,000 pair-end reads per sample (i.e. 128,000 reads in total) to facilite running time in local machine. [_Seqtk_](https://github.com/lh3/seqtk) was used for the subsampling step.
 
 ## Acknowledgements
