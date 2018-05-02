@@ -1,11 +1,12 @@
 ---
-title: "Phyloseq workflow"
+title: "Analyse des communautés fongiques / Fungal communities analysis </span>"
 author: "Alexis Carteron & Simon Morvan"
-date: \today
-output: html_document
+output:
+  html_document:
+    toc: true
 ---
-
-## Analyse des communautés fongiques / <span style="color:darkblue"> Fungal communities analysis </span>
+<br>
+Date: `r Sys.time()`
 <br>
 
 ### 1. Commençons ! / <span style="color:darkblue"> Let's start </span>
@@ -65,6 +66,7 @@ ntaxa(ps)
 ntaxa(ps.fungi)
 ```
 Filtered `r ntaxa(ps) - ntaxa(ps.fungi)` non-fungal taxa 
+<br>
 <br>
 
 #### Enlever les taxons avec seulement 1 ou 2 sequences au total / <span style="color:darkblue"> Remove singletons and doubletons </span>
@@ -143,8 +145,6 @@ ord.nmds.bray <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 1000
 ```{r, include = TRUE, cache = TRUE, fig.height = 6, fig.width = 8}
 plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "horizon")
 ```
-<br>
-<br>
 
 #### Figure detaillée / <span style="color:darkblue"> Full plot </span>
 ```{r, include = TRUE, cache = TRUE, fig.height = 10, fig.width = 15}
@@ -157,7 +157,6 @@ plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "ho
   coord_fixed() +
   theme(text = element_text(size=20), strip.text = element_text(size=20))
 ```
-<br>
 
 #### NMDS avec les données binaire / <span style="color:darkblue"> NMDS with binary data </span>
 ```{r, include = TRUE, echo = FALSE}
@@ -179,7 +178,6 @@ plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bin, type="samples", color = "hor
   coord_fixed() +
   theme(text = element_text(size=20), strip.text = element_text(size=20))
 ```
-<br>
 
 ### 4. Analyse de variance: les communautés sont-elles statistiquement differentes? / <span style="color:darkblue"> Variance analysis: Are communities statistically different?  </span>
 ```{r, include = TRUE}
@@ -249,7 +247,6 @@ vif.cca(ord.rda) # VIF < 10 should be fine
 ```{r, include = TRUE, cache = TRUE, fig.height = 6, fig.width = 8}
 plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling=1), type="sites",  color = "horizon") 
 ```
-<br>
 
 #### Enregistrer les valeurs propres / <span style="color:darkblue"> Get eigenvector values </span>
 ```{r, include = TRUE, cache = TRUE}
@@ -264,7 +261,6 @@ arrowdf <- data.frame(arrowmat) # Add labels
 rownames(arrowdf) <- c("Carbon","Nitrogen","pH") # Add rownames 
 arrowdf <- data.frame(labels = c("Carbon","Nitrogen","pH"), arrowmat) # Make a data.frame
 ```
-<br>
 
 ```{r, include = TRUE, cache = TRUE, fig.height = 10, fig.width = 15}
 plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling = 1), type="sites",  color = "horizon") + 
