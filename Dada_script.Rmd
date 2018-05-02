@@ -84,6 +84,7 @@ fnFs <- mixedsort(fnFs)
 fnRs <- mixedsort(fnRs)
 sample.names
 ```
+![](https://38.media.tumblr.com/d75b1fc1705b4ea3f53ea56a80b192ce/tumblr_mnda0xLsdD1rsdj6zo4_500.gif)
 
 
 # Profile de qualité / <span style="color:darkblue">Quality profiles</span>  
@@ -169,9 +170,14 @@ pourc_disc <- cbind(out, pourc) # combines out and pourc
 pourc_disc 
 (mean(out[,2])/mean(out[,1]))*100 # Mean percentage 
 ```
-Plus de la moitié des séquences n'ont pas passé nos paramètres de filtrage ! 
-More than
+Plus de la moitié des séquences n'ont pas passé nos paramètres de filtrage !  
+<span style="color:darkblue">More than half the reads haven't passed through the filtering parameters ! </span>  
+
 # Apprentissage des taux d'erreur / <span style="color:darkblue">Error Rates Learning</span>
+
+![](https://78.media.tumblr.com/9ce0345eaa99f3a95ded99b0f80d6fa9/tumblr_inline_p7jaq4SoIC1t5s0wu_500.gif)
+
+
 
 Cet étape consiste à estimer le taux d'erreur de séquençage. Son but est de permettre de différencier les séquences mutantes et les séquences érronées.Le modèle d'erreur est calculé en alternant l'estimation du taux d'erreur et l'inférence de la composition de l'échantillon <br> 
 
@@ -215,8 +221,9 @@ names(derepRs) <- sample.names
 
 L'avantage de DADA2 réside dans la conservation d'un résumé des informations de qualité associées à chaque *séquence unique*. Le profil de qualité consensuel d'une *séquence unique* est la moyenne des qualités de position des lectures dérépliquées. Ces profils de qualité informent le modèle d'erreur de l'étape suivante d'inférence d'échantillon, ce qui augmente considérablement la précision de DADA2. 
 
-<span style="color:darkblue">The advantage of DADA2 lies in the fact that it retains a summary of the quality information associated with each *unique sequence*. The consensus quality profile of a *unique sequence* is the average of the positional qualities from the dereplicated reads. These quality profiles inform the error model of the subsequent sample inference step, significantly increasing DADA2’s accuracy.</span>  
+<span style="color:darkblue">The advantage of DADA2 lies in the fact that it retains a summary of the quality information associated with each *unique sequence*. The consensus quality profile of a *unique sequence* is the average of the positional qualities from the dereplicated reads. These quality profiles inform the error model of the subsequent sample inference step, significantly increasing DADA2’s accuracy.</span> 
 
+![](https://media1.tenor.com/images/ea6d27c2da26e6011e6e71559a1579f7/tenor.gif?itemid=6117577)
 
 ### Inférence des échantillons / <span style="color:darkblue"> Sample Inference</span>  
 
@@ -242,7 +249,7 @@ dadaRs[[1]]
 
 
 ## Fusion des séquences pairées / <span style="color:darkblue">Merging paired reads</span>  
-
+![FUSION!](https://media.giphy.com/media/TbYgHMnICI1A4/giphy.gif)
 Tout l'intérêt du séquençage en paire réside dans le but de fusionner les deux brins afin d'accroitre notre confiance en leur fiabilité. La fusion permet également d'obtenir des amplicons plus long.  
 La fonction **mergePairs** nécessite qu'on lui fournisse les objets calculés dans les deux étapes précédentes (derep et dada). Puis, les paramètres que nous pouvons modifiés librement sont:
 
@@ -298,7 +305,7 @@ plot(nchar(getSequences(seqtab)))
 
 
 ## Suppression des chimères / <span style="color:darkblue"> Remove chimeras </span> 
-
+![](http://szzljy.com/images/chimera/chimera2.jpg)
 This 
 The samples in the sequence table are all pooled together for bimera identification.
 
