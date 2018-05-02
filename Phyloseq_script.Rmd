@@ -269,10 +269,10 @@ arrowdf <- data.frame(labels = c("Carbon","Nitrogen","pH"), arrowmat) # Make a d
 ```{r, include = TRUE, cache = TRUE, fig.height = 10, fig.width = 15}
 plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling = 1), type="sites",  color = "horizon") + 
   coord_fixed(sqrt(evals[2] / evals[1])) +
-  geom_point(size = 8, alpha = .5, show.legend = FALSE) +
+  geom_point(size = 8, alpha = .5) +
   scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
   geom_segment(aes(xend = CAP1, yend = CAP2, x = 0, y = 0), size = .7, data = arrowdf, color = "black", arrow = arrow(length = unit(0.05, "npc"))) +
-  geom_text(aes(x = CAP1*1.15, y = CAP2*1.15, color = NULL, label = labels), size = 6, data = arrowdf) +
+  geom_text(aes(x = CAP1*1.15, y = CAP2*1.15, color = NULL, label = labels), size = 6, data = arrowdf, , show.legend = FALSE) +
   facet_wrap(~forest) +
   theme(text = element_text(size=18), strip.text = element_text(size=20)) +
   labs(x = paste("Constrained axis 1 (",round(evals[1]*100, 0),"%)"), y = paste("Constrained axis 2 (",round(evals[2]*100, 0),"%)"))
