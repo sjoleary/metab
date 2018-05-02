@@ -1,25 +1,34 @@
 ---
 title: "Phyloseq workflow"
 author: "Alexis Carteron & Simon Morvan"
-date: "9 mars 2018"
+date: \today
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Analyse des communautés fongiques
+<span style="color:darkblue">
+## Analysis of fungal communities
+</span>
 
+## Commençons ! / <span style="color:darkblue"> Let's start </span>
+
+### Charger les librairies
+<span style="color:darkblue">
+### Load packages
+</span>
 
 ```{r , include=TRUE}
-
-# Analysis of microbiological communities
-
-## Load packages ####
-library(phyloseq)
+library(phyloseq); packageVersion('phyloseq')
 library(vegan)
 library(ggplot2)
+```
 
-#### Data import and processing ####
+### Importer les données
+<span style="color:darkblue">
+### Data import
+</span>
+
+```{r , include=TRUE, echo = FALSE}
 ## Sample data
 soiltab <- read.table('data/soil.csv', sep = ';', row.names = 1, header = TRUE)
 
@@ -28,14 +37,21 @@ load("data/taxotab.01.05.rdata")
 
 # ASV table
 load("data/seqtab.nochim.rdata")
+```
 
-# Construct phyloseq object (straightforward from dada2 outputs)
+### Construire du l'objet phyloseq
+<span style="color:darkblue">
+### Construct phyloseq object
+</span>
 ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
                sample_data(soiltab), 
                tax_table(as.matrix(taxo$tax)))
 ps
 
-# Reorder factors
+### Réordoner les facteurs 
+<span style="color:darkblue">
+### Reorder factors
+</span>
 sample_data(ps)$horizon = factor(sample_data(ps)$horizon, levels = c('L', 'F', 'H', 'Ae', 'B'))
 sample_data(ps)$forest = factor(sample_data(ps)$forest, levels = c('AS', 'Mixed', 'FG'))
 
