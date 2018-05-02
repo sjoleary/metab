@@ -11,6 +11,9 @@ Depuis la démocratisation du séquençage à haut débit, l'utilisation de l'AD
 Dada: https://alexiscarter.github.io/metab/Dada_script.html  
 Phyloseq: https://alexiscarter.github.io/metab/Phyloseq_script.html
 
+## To download the repo (including data and scripts)
+https://github.com/alexiscarter/metab/archive/master.zip  
+
 ## Authors
 Simon Morvan and Alexis Carteron,
 Université de Montréal
