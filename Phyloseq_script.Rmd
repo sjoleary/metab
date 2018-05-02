@@ -5,30 +5,23 @@ date: \today
 output: html_document
 ---
 
-# Analyse des communautés fongiques
-<span style="color:darkblue">
-## Analysis of fungal communities
-</span>
+## Analyse des communautés fongiques / <span style="color:darkblue"> Fungal communities analysis </span>
+<br>
 
-## Commençons ! / <span style="color:darkblue"> Let's start </span>
+### 1. Commençons ! / <span style="color:darkblue"> Let's start </span>
 
-### Charger les librairies
-<span style="color:darkblue">
-### Load packages
-</span>
-
-```{r , include=TRUE}
-library(phyloseq); packageVersion('phyloseq')
+#### Charger les librairies / <span style="color:darkblue"> Load packages </span>
+```{r , include=TRUE, message = FALSE}
+library(phyloseq)
 library(vegan)
 library(ggplot2)
 ```
+Built with R version `r getRversion()` and Phyloseq version `r packageVersion('phyloseq')` and a Linux machine version 4.4.0-64-generic
 
-### Importer les données
-<span style="color:darkblue">
-### Data import
-</span>
+<br>
 
-```{r , include=TRUE, echo = FALSE}
+#### Importer les données / <span style="color:darkblue"> Data import </span>
+```{r , include=TRUE}
 ## Sample data
 soiltab <- read.table('data/soil.csv', sep = ';', row.names = 1, header = TRUE)
 
@@ -38,48 +31,69 @@ load("data/taxotab.01.05.rdata")
 # ASV table
 load("data/seqtab.nochim.rdata")
 ```
+<br>
 
-### Construire du l'objet phyloseq
-<span style="color:darkblue">
-### Construct phyloseq object
-</span>
+#### Construire l'objet phyloseq / <span style="color:darkblue"> Construct phyloseq object </span>
+```{r , include=TRUE}
 ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
                sample_data(soiltab), 
                tax_table(as.matrix(taxo$tax)))
 ps
+```
+<br>
 
-### Réordoner les facteurs 
-<span style="color:darkblue">
-### Reorder factors
-</span>
+#### Réordonner les facteurs / <span style="color:darkblue"> Reorder factors </span>
+```{r , include=TRUE}
 sample_data(ps)$horizon = factor(sample_data(ps)$horizon, levels = c('L', 'F', 'H', 'Ae', 'B'))
 sample_data(ps)$forest = factor(sample_data(ps)$forest, levels = c('AS', 'Mixed', 'FG'))
+```
+<br>
 
-## Start directly from phyloseq object
+#### Commencer directement avec l'objet Phyloseq / <span style="color:darkblue"> Start directly from Phyloseq object </span>
+```{r , include=TRUE}
 #load(file = "data/ps.rdata")
+#ps
+```
+<br>
 
-#### Filtering and transformation ####
-ntaxa(ps)
+### 2. Filtrage et transformation / <span style="color:darkblue"> Filtering and transformation </span>
 
-## Subset of the dataset with only fungi
+#### Subset of the dataset with only fungi
+```{r , include=TRUE}
 ps.fungi = subset_taxa(ps, Kingdom=="k__Fungi")
+ntaxa(ps)
 ntaxa(ps.fungi)
+```
+Filtered `r ntaxa(ps) - ntaxa(ps.fungi)` non-fungal taxa 
+<br>
 
-## Remove singletons and doubletons
+#### / <span style="color:darkblue">  </span>
+#### Enlever les taxons avec seulement 1 ou 2 sequences au total / <span style="color:darkblue"> Remove singletons and doubletons </span>
+```{r , include=TRUE}
 ps.fungi.nosd = filter_taxa(ps.fungi, function(x) sum(x) > 2, TRUE)
 ntaxa(ps.fungi.nosd)
+```
+<br>
 
-## Shifted log transformation
+#### Transformation log + 1 / <span style="color:darkblue"> Shifted log transformation </span>
+```{r , include=TRUE}
 ps.fungi.nosd.log <- transform_sample_counts(ps.fungi.nosd, function(x) log(x+1))
+```
+<br>
 
-## Agglomerate taxa at the species level
-ps.fungi.nosd.log.sp = tax_glom(ps.fungi.nosd.log, "Species", NArm = FALSE) # NArm = FALSE because it keeps ESV not taxonomically assigned at the species level
+#### Agglomerer les taxons au niveau specifique / <span style="color:darkblue"> Agglomerate taxa at the species level </span>
+```{r , include=TRUE}
+ps.fungi.nosd.log.sp = tax_glom(ps.fungi.nosd.log, "Species", NArm = FALSE) # NArm = FALSE in order to keep ESV not taxonomically assigned at the species level
+```
+<br>
 
-## Other transformation
-## e.g. Hellinger transformation
-ps.fungi.nosd.hel = transform_sample_counts(ps.fungi.nosd, function(x) sqrt(x/sum(x)))
+#### Exemple de transmformation / <span style="color:darkblue"> Example of other transformation </span>
+```{r , include=TRUE}
+ps.fungi.nosd.hel = transform_sample_counts(ps.fungi.nosd, function(x) sqrt(x/sum(x))) # Hellinger transformation
+```
+<br>
 
-#### Exploration ####
+### 3. Exploration des données / <span style="color:darkblue"> Data exploration </span>
 ## Details on the object
 ntaxa(ps.fungi.nosd.log)
 nsamples(ps.fungi.nosd.log)
@@ -88,6 +102,7 @@ sample_variables(ps.fungi.nosd.log)
 otu_table(ps.fungi.nosd.log)[1:2, 1:2]
 tax_table(ps.fungi.nosd.log)[1:5, 1:6]
 
+#fig.height, fig.width
 # Sequencing depth per samples
 plot_bar(ps, x = "Sample", y = "Abundance", fill = "Kingdom") +
   geom_bar(stat="identity", color = "black") +
