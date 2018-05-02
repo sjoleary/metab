@@ -11,17 +11,17 @@ output: html_document
 ### 1. Commençons ! / <span style="color:darkblue"> Let's start </span>
 
 #### Charger les librairies / <span style="color:darkblue"> Load packages </span>
-```{r , include=TRUE, message = FALSE}
+```{r, include = TRUE, message = FALSE}
 library(phyloseq)
 library(vegan)
 library(ggplot2)
 ```
-Built with R version `r getRversion()` and Phyloseq version `r packageVersion('phyloseq')` and a Linux machine version 4.4.0-64-generic
+Built with R version `r getRversion()` and Phyloseq version `r packageVersion('phyloseq')` and a Linux machine image 4.4.0-64-generic
 
 <br>
 
 #### Importer les données / <span style="color:darkblue"> Data import </span>
-```{r , include=TRUE}
+```{r, include = TRUE}
 ## Sample data
 soiltab <- read.table('data/soil.csv', sep = ';', row.names = 1, header = TRUE)
 
@@ -34,7 +34,7 @@ load("data/seqtab.nochim.rdata")
 <br>
 
 #### Construire l'objet phyloseq / <span style="color:darkblue"> Construct phyloseq object </span>
-```{r , include=TRUE}
+```{r, include = TRUE}
 ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
                sample_data(soiltab), 
                tax_table(as.matrix(taxo$tax)))
@@ -43,14 +43,14 @@ ps
 <br>
 
 #### Réordonner les facteurs / <span style="color:darkblue"> Reorder factors </span>
-```{r , include=TRUE}
+```{r, include = TRUE}
 sample_data(ps)$horizon = factor(sample_data(ps)$horizon, levels = c('L', 'F', 'H', 'Ae', 'B'))
 sample_data(ps)$forest = factor(sample_data(ps)$forest, levels = c('AS', 'Mixed', 'FG'))
 ```
 <br>
 
 #### Commencer directement avec l'objet Phyloseq / <span style="color:darkblue"> Start directly from Phyloseq object </span>
-```{r , include=TRUE}
+```{r, include = TRUE}
 #load(file = "data/ps.rdata")
 #ps
 ```
@@ -59,7 +59,7 @@ sample_data(ps)$forest = factor(sample_data(ps)$forest, levels = c('AS', 'Mixed'
 ### 2. Filtrage et transformation / <span style="color:darkblue"> Filtering and transformation </span>
 
 #### Subset of the dataset with only fungi
-```{r , include=TRUE}
+```{r, include = TRUE}
 ps.fungi = subset_taxa(ps, Kingdom=="k__Fungi")
 ntaxa(ps)
 ntaxa(ps.fungi)
@@ -67,43 +67,47 @@ ntaxa(ps.fungi)
 Filtered `r ntaxa(ps) - ntaxa(ps.fungi)` non-fungal taxa 
 <br>
 
-#### / <span style="color:darkblue">  </span>
 #### Enlever les taxons avec seulement 1 ou 2 sequences au total / <span style="color:darkblue"> Remove singletons and doubletons </span>
-```{r , include=TRUE}
+```{r, include = TRUE}
 ps.fungi.nosd = filter_taxa(ps.fungi, function(x) sum(x) > 2, TRUE)
 ntaxa(ps.fungi.nosd)
 ```
 <br>
 
-#### Transformation log + 1 / <span style="color:darkblue"> Shifted log transformation </span>
-```{r , include=TRUE}
+#### Transformation log + 1 pour normaliser les données / <span style="color:darkblue"> Shifted log transformation to normalize </span>
+```{r, include = TRUE}
 ps.fungi.nosd.log <- transform_sample_counts(ps.fungi.nosd, function(x) log(x+1))
 ```
 <br>
 
 #### Agglomerer les taxons au niveau specifique / <span style="color:darkblue"> Agglomerate taxa at the species level </span>
-```{r , include=TRUE}
+```{r, include = TRUE, cache = TRUE}
 ps.fungi.nosd.log.sp = tax_glom(ps.fungi.nosd.log, "Species", NArm = FALSE) # NArm = FALSE in order to keep ESV not taxonomically assigned at the species level
 ```
 <br>
 
 #### Exemple de transmformation / <span style="color:darkblue"> Example of other transformation </span>
-```{r , include=TRUE}
+```{r, include = TRUE}
 ps.fungi.nosd.hel = transform_sample_counts(ps.fungi.nosd, function(x) sqrt(x/sum(x))) # Hellinger transformation
 ```
 <br>
 
 ### 3. Exploration des données / <span style="color:darkblue"> Data exploration </span>
-## Details on the object
+#### Details de l'objet Phyloseq / <span style="color:darkblue"> Details of the object Phyloseq </span>
+```{r, include = TRUE}
 ntaxa(ps.fungi.nosd.log)
 nsamples(ps.fungi.nosd.log)
 rank_names(ps.fungi.nosd.log)
 sample_variables(ps.fungi.nosd.log)
 otu_table(ps.fungi.nosd.log)[1:2, 1:2]
-tax_table(ps.fungi.nosd.log)[1:5, 1:6]
+tax_table(ps.fungi.nosd.log)[1:2, 1:2]
+```
+<br>
 
+#### Profondeur de sequencage apres filtrage de la canalisation Dada2 / <span style="color:darkblue"> Sequencing depth per samples after filtering of Dada2 pipeline</span>
+```{r, include = TRUE, cache = TRUE, fig.height = 5, fig.width = 9}
 #fig.height, fig.width
-# Sequencing depth per samples
+# 
 plot_bar(ps, x = "Sample", y = "Abundance", fill = "Kingdom") +
   geom_bar(stat="identity", color = "black") +
   labs(x = "Sample ID", y = "Reads abundance")
@@ -115,107 +119,162 @@ plot_bar(ps.fungi,  x = "Sample", y = "Abundance", fill = "Kingdom") +
 plot_bar(ps.fungi,  x = "Sample", y = "Abundance", fill = "Phylum") +
   geom_bar(stat="identity") +
   labs(x = "Sample ID", y = "Reads abundance of fungi")
-
+```
+<br>
+```{r, include = TRUE, cache = TRUE, fig.height = 9, fig.width = 9}
 plot_bar(ps.fungi, fill = "Phylum") +
   geom_bar(stat="identity") +
   facet_wrap(horizon~forest, ncol = 3, scales = "free_x") +
   labs(x = "Sample ID", y = "Reads abundance of fungi")
+```
+<br>
 
-#### Ordination ####
-myco_names <- c(`AS` = "Maple plots", `Mixed` = "Mixed plots", `FG` = "Beech plots")
+### 3. Ordination non-contrainte / <span style="color:darkblue"> Unconstrained ordination </span>
+#### NMDS avec measure de dissimilarité de Bray-Curtis / <span style="color:darkblue"> NMDS with Bray-Curtis measure dissimilarity (aka Steinhaus) </span>
+```{r, include = TRUE, cache = FALSE}
+ord.nmds.bray <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 20, distance = "bray") # /!\ number of tries need to be high enough to reach convergence
+```
+```{r, include = FALSE, cache = TRUE}
+ord.nmds.bray <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 1000, distance = "bray")
+```
+<br>
 
-## nMDS with Bray-Curtis dissimilarity
-ord.nmds.bray <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 100, distance = "bray")
-
-## Quick plot
+#### Figure rapide / <span style="color:darkblue"> Quick plot </span>
+```{r, include = TRUE, cache = TRUE, fig.height = 6, fig.width = 8}
 plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "horizon")
+```
+<br>
+<br>
 
-## Full plot
+#### Figure detaillée / <span style="color:darkblue"> Full plot </span>
+```{r, include = TRUE, cache = TRUE, fig.height = 10, fig.width = 15}
 plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "horizon") +
-  geom_point(size = 8, alpha = .5, show.legend = TRUE) +
+  geom_point(size = 6, alpha = .5, show.legend = TRUE) +
   scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
   labs(x = "Axis 1", y = "Axis 2", caption = paste("Stress =", round(ord.nmds.bray$stress, 2))) +
   facet_wrap(~forest) +
   stat_ellipse(type = "t", level = 0.8) + # 80% confidence interval ellispes
   coord_fixed() +
-  theme(text = element_text(size=25), strip.text = element_text(size=25))
+  theme(text = element_text(size=20), strip.text = element_text(size=20))
+```
+<br>
 
-## nMDS with Sorensen dissimilarity
-ord.nmds.bin <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 100, distance = "bray", binary =TRUE)
+#### NMDS avec les données binaire / <span style="color:darkblue"> NMDS with binary data </span>
+```{r, include = TRUE, echo = FALSE}
+ord.nmds.bin <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 20, distance = "bray", binary =TRUE)
+```
+```{r, include = FALSE, cache = TRUE}
+ord.nmds.bin <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 1000, distance = "bray", binary =TRUE)
+```
+<br>
 
+#### Figure de la NMDS avec données binaires / <span style="color:darkblue"> NMDS plot with binary data </span>
+```{r, include = TRUE, cache = TRUE, fig.height = 10, fig.width = 15}
 plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bin, type="samples", color = "horizon") +
-  geom_point(size = 8, alpha = .5, show.legend = TRUE) +
+  geom_point(size = 6, alpha = .5, show.legend = TRUE) +
   scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
   labs(x = "Axis 1", y = "Axis 2", caption = paste("Stress =", round(ord.nmds.bin$stress, 2))) +
   facet_wrap(~forest) +
   stat_ellipse(type = "t", level = 0.8) + # 80% confidence interval ellispes
   coord_fixed() +
-  theme(text = element_text(size=25), strip.text = element_text(size=25))
+  theme(text = element_text(size=20), strip.text = element_text(size=20))
+```
+<br>
 
-#### Permanova ####
-# Export data
-metadata <- as(sample_data(ps.fungi.nosd.log.sp), "data.frame")
+### 4. Analyse de variance: les communautés sont-elles statistiquement differentes? / <span style="color:darkblue"> Variance analysis: Are communities statistically different?  </span>
+```{r, include = TRUE}
+metadata <- as(sample_data(ps.fungi.nosd.log.sp), "data.frame") # Export data
+```
+<br>
 
-## Bray-Curtis measure
-## Horizon and forest effect with interaction and block
-adonis(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray") ~ horizon * forest,
-      strata = metadata$block,
+#### PERMANOVA avec la measure de Bray-Curtis / <span style="color:darkblue"> PERMANOVA with Bray-Curtis measure </span>
+```{r, include = TRUE, cache = TRUE}
+adonis(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray") ~ horizon * forest, strata = metadata$block,# Horizon and forest effect with interaction and block as strata
       data = metadata,
       permutations = 99999)
+```
+<br>
 
-## Test for the homogeneity of dispersion with Bray-Curtis measures
+#### Test de l'homogénéité de dispersion / <span style="color:darkblue"> Test for the homogeneity of dispersion </span>
+```{r, include = TRUE, cache = TRUE}
 betadisp <- betadisper(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray"), metadata$forest)
 permutest(betadisp, permutations = 99999) 
 
 betadisp <- betadisper(phyloseq::distance(physeq = ps.fungi.nosd.log.sp, method="bray"), metadata$horizon)
 permutest(betadisp, permutations = 99999)
+```
+<br>
 
-## Sorensen measure
-## Horizon and forest effect with interaction and block
-adonis(phyloseq::distance(ps.fungi.nosd.log.sp, method="bray", binary = TRUE) ~ horizon * forest, strata = metadata$block,
+#### PERMANOVA avec les données binaires / <span style="color:darkblue"> PERMANOVA with binary data </span>
+```{r, include = TRUE, cache = TRUE}
+adonis(phyloseq::distance(ps.fungi.nosd.log.sp, method="bray", binary = TRUE) ~ horizon * forest, strata = metadata$block, # Horizon and forest effect with interaction and block as strata
        data = metadata,
        permutations = 99999)
+```
+<br>
 
-## Test for the homogeneity of dispersion for Bray data
+#### Test de l'homogénéité de dispersion / <span style="color:darkblue"> Test for the homogeneity of dispersion </span>
+```{r, include = TRUE, cache = TRUE}
 betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log.sp, method="bray", binary = TRUE), metadata$forest)
 permutest(betadisp, permutations = 99999) 
+```
+<br>
 
+```{r, include = TRUE, cache = TRUE}
 betadisp <- betadisper(phyloseq::distance(ps.fungi.nosd.log.sp, method="bray", binary = TRUE), metadata$horizon)
 permutest(betadisp, permutations = 99999)
-  
-#### Redundancy Analysis (RDA) ####
-ord.rda <- ordinate(ps.fungi.nosd.log.sp, formula = ps.fungi.nosd.log.sp ~ Carbon+Nitrogen+pH, method="CAP", distance = "bray")
+```
+<br>
 
-# Get stat
+### 4. Ordination sous contraites: analyse de redondance / <span style="color:darkblue"> Constrained ordination: Redundancy Analysis (RDA) </span>
+```{r, include = TRUE, cache = TRUE}
+ord.rda <- ordinate(ps.fungi.nosd.log.sp, formula = ps.fungi.nosd.log.sp ~ Carbon+Nitrogen+pH, method="CAP", distance = "bray") # Uses Capscale function of Vegan package
+```
+<br>
+
+#### Obtenir les statistiques de la RDA / <span style="color:darkblue"> RDA stats </span>
+```{r, include = TRUE, cache = TRUE}
 RsquareAdj(ord.rda) 
 anova.cca(ord.rda)
+```
+<br>
 
-# Check variance inflation factors 
-vif.cca(ord.rda)
+#### Verifications des facteurs d'inflation de la variance / <span style="color:darkblue"> Check variance inflation factors (VIF) </span>
+```{r, include = TRUE, cache = TRUE}
+vif.cca(ord.rda) # VIF < 10 should be fine
+```
+<br>
 
-## Quick plot
+#### Figure rapide / <span style="color:darkblue"> Quick plot </span>
+```{r, include = TRUE, cache = TRUE, fig.height = 6, fig.width = 8}
 plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling=1), type="sites",  color = "horizon") 
+```
+<br>
 
-## Full plot
-# Add the environmental variables as arrows
-arrowmat = vegan::scores(ord.rda, display = "bp", scaling = 1)
-# Add labels, make a data.frame
-arrowdf <- data.frame(arrowmat)
-rownames(arrowdf) <- c("Carbon","Nitrogen","pH")
-arrowdf <- data.frame(labels = c("Carbon","Nitrogen","pH"), arrowmat)
-
-# Get eigenvector values
+#### Enregistrer les valeurs propres / <span style="color:darkblue"> Get eigenvector values </span>
+```{r, include = TRUE, cache = TRUE}
 evals <- ord.rda$CCA$eig/sum(ord.rda$CCA$eig)
+```
+<br>
 
-# plot
+#### Figure detaillée / <span style="color:darkblue"> Full plot </span>
+```{r, include = TRUE, cache = TRUE}
+arrowmat = vegan::scores(ord.rda, display = "bp", scaling = 1) # Add the environmental variables as arrows
+arrowdf <- data.frame(arrowmat) # Add labels 
+rownames(arrowdf) <- c("Carbon","Nitrogen","pH") # Add rownames 
+arrowdf <- data.frame(labels = c("Carbon","Nitrogen","pH"), arrowmat) # Make a data.frame
+```
+<br>
+
+```{r, include = TRUE, cache = TRUE, fig.height = 10, fig.width = 15}
 plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling = 1), type="sites",  color = "horizon") + 
   coord_fixed(sqrt(evals[2] / evals[1])) +
-  geom_point(size = 8, alpha = .5) +
+  geom_point(size = 8, alpha = .5, show.legend = FALSE) +
   scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
   geom_segment(aes(xend = CAP1, yend = CAP2, x = 0, y = 0), size = .7, data = arrowdf, color = "black", arrow = arrow(length = unit(0.05, "npc"))) +
   geom_text(aes(x = CAP1*1.15, y = CAP2*1.15, color = NULL, label = labels), size = 6, data = arrowdf) +
-  facet_wrap(~forest, labeller = as_labeller(myco_names)) +
-  theme(text = element_text(size=18), strip.text = element_text(size=25)) +
+  facet_wrap(~forest) +
+  theme(text = element_text(size=18), strip.text = element_text(size=20)) +
   labs(x = paste("Constrained axis 1 (",round(evals[1]*100, 0),"%)"), y = paste("Constrained axis 2 (",round(evals[2]*100, 0),"%)"))
 ```
 
