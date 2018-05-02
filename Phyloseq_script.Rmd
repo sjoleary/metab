@@ -9,7 +9,7 @@ output:
 Date: `r Sys.time()`
 <br>
 
-### 1. Commençons ! / <span style="color:darkblue"> Let's start </span>
+### 1. Commençons! / <span style="color:darkblue"> Let's start! </span>
 
 #### Charger les librairies / <span style="color:darkblue"> Load packages </span>
 ```{r, include = TRUE, message = FALSE}
@@ -17,7 +17,9 @@ library(phyloseq)
 library(vegan)
 library(ggplot2)
 ```
-Built with R version `r getRversion()` and Phyloseq version `r packageVersion('phyloseq')` and a Linux machine image 4.4.0-64-generic
+R version `r getRversion()`  
+Phyloseq version `r packageVersion('phyloseq')`  
+Linux machine image 4.4.0-64-generic
 
 <br>
 
@@ -34,7 +36,7 @@ load("data/seqtab.nochim.rdata")
 ```
 <br>
 
-#### Construire l'objet phyloseq / <span style="color:darkblue"> Construct phyloseq object </span>
+#### Construire l'objet Phyloseq / <span style="color:darkblue"> Construct the Phyloseq object </span>
 ```{r, include = TRUE}
 ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
                sample_data(soiltab), 
@@ -50,7 +52,7 @@ sample_data(ps)$forest = factor(sample_data(ps)$forest, levels = c('AS', 'Mixed'
 ```
 <br>
 
-#### Commencer directement avec l'objet Phyloseq / <span style="color:darkblue"> Start directly from Phyloseq object </span>
+#### Pour commencer directement avec l'objet Phyloseq / <span style="color:darkblue"> To start directly from Phyloseq object </span>
 ```{r, include = TRUE}
 #load(file = "data/ps.rdata")
 #ps
@@ -106,10 +108,8 @@ tax_table(ps.fungi.nosd.log)[1:2, 1:2]
 ```
 <br>
 
-#### Profondeur de sequencage apres filtrage de la canalisation Dada2 / <span style="color:darkblue"> Sequencing depth per samples after filtering of Dada2 pipeline</span>
+#### Profondeur de sequencage après filtrage de la canalisation Dada2 / <span style="color:darkblue"> Sequencing depth per samples after filtering of Dada2 pipeline</span>
 ```{r, include = TRUE, cache = TRUE, fig.height = 5, fig.width = 9}
-#fig.height, fig.width
-# 
 plot_bar(ps, x = "Sample", y = "Abundance", fill = "Kingdom") +
   geom_bar(stat="identity", color = "black") +
   labs(x = "Sample ID", y = "Reads abundance")
@@ -131,7 +131,7 @@ plot_bar(ps.fungi, fill = "Phylum") +
 ```
 <br>
 
-### 3. Ordination non-contrainte / <span style="color:darkblue"> Unconstrained ordination </span>
+### 3. Ordination non contrainte / <span style="color:darkblue"> Unconstrained ordination </span>
 #### NMDS avec measure de dissimilarité de Bray-Curtis / <span style="color:darkblue"> NMDS with Bray-Curtis measure dissimilarity (aka Steinhaus) </span>
 ```{r, include = TRUE, cache = FALSE}
 ord.nmds.bray <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 20, distance = "bray") # /!\ number of tries need to be high enough to reach convergence
@@ -159,7 +159,7 @@ plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "ho
 ```
 
 #### NMDS avec les données binaire / <span style="color:darkblue"> NMDS with binary data </span>
-```{r, include = TRUE, echo = FALSE}
+```{r, include = TRUE, cache = TRUE}
 ord.nmds.bin <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 20, distance = "bray", binary =TRUE)
 ```
 ```{r, include = FALSE, cache = TRUE}
