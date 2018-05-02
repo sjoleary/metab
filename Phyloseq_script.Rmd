@@ -224,7 +224,7 @@ permutest(betadisp, permutations = 99999)
 ```
 <br>
 
-### 4. Ordination sous contraites: analyse de redondance / <span style="color:darkblue"> Constrained ordination: Redundancy Analysis (RDA) </span>
+### 5. Ordination sous contraites: analyse de redondance / <span style="color:darkblue"> Constrained ordination: Redundancy Analysis (RDA) </span>
 ```{r, include = TRUE, cache = TRUE}
 ord.rda <- ordinate(ps.fungi.nosd.log.sp, formula = ps.fungi.nosd.log.sp ~ Carbon+Nitrogen+pH, method="CAP", distance = "bray") # Uses Capscale function of Vegan package
 ```
