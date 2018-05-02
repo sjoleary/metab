@@ -7,13 +7,22 @@ With the democratisation of high-throughput sequencing, the use of DNA as an ide
 
 Depuis la démocratisation du séquençage à haut débit, l'utilisation de l'ADN comme méthode d'identification est devenue une pratique courante. Grâce à des gènes marqueurs (ARNr 16S, ARNr 18S, ITS, etc.) et des bases de données taxonomiques, il est possible d’identifier les communautés présentes dans vos échantillons. Plus besoin de cultiver, isoler et identifier en fonction de la morphologie et des réactions chimiques! Cependant, le processus complet de d’identification des séquences d'ADN en unités taxonomiques exploitables peut s’avérer difficile en raison de l’évolution rapide des techniques bioinformatiques et de la profusion de méthodes disponibles. Dans cet atelier, nous vous présenterons un flux opérationnel accessible et reproductible en langage R dédié au traitement de séquences d'ADN brutes à l'aide de la librairie _DADA2_. Cette étape sera suivi d’une analyse et d’une visualisation de la communauté à l'aide de la librairie _Phyloseq_.
 
+## Tutorials
+Dada: [https://alexiscarter.github.io/metab/Dada_script.html](https://alexiscarter.github.io/metab/Dada_script.html)  
+Phyloseq: [https://alexiscarter.github.io/metab/Phyloseq_script.html](https://alexiscarter.github.io/metab/Phyloseq_script.html)
+
+## To download the repository
+Includes data and scripts  
+[https://github.com/alexiscarter/metab/archive/master.zip](https://github.com/alexiscarter/metab/archive/master.zip)
+
+
 ## Authors
 Simon Morvan and Alexis Carteron,
 Université de Montréal
 
 ## Data  
 From A. Carteron, S. Joly, M. Beigas, B.L. Turner, E. Laliberté. Major Changes in Soil Fungal Communities Across Soil Horizons and Between Adjacent Forests. In preparation  
-Amplicons obtained through DNA amplification targeting the ITS region (fungal specific) and sequenced on an Illumina MiSeq plateform (paired-end 300 bp). 
+Amplicons obtained through DNA amplification targeting the ITS region (fungal specific) and sequenced on an Illumina MiSeq plateform (paired-end 300 bp).  
 Orignial sequenced data were subsampled, randomly selecting 1,000 pair-end reads per sample (i.e. 128,000 reads in total) to facilite running time in local machine. [_Seqtk_](https://github.com/lh3/seqtk) was used for the subsampling step.
 
 ## Acknowledgements
