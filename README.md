@@ -12,9 +12,14 @@ Dada: [https://alexiscarter.github.io/metab/Dada_script.html](https://alexiscart
 Phyloseq: [https://alexiscarter.github.io/metab/Phyloseq_script.html](https://alexiscarter.github.io/metab/Phyloseq_script.html)
 
 ## To download the repository
-Includes data and scripts  
-[https://github.com/alexiscarter/metab/archive/master.zip](https://github.com/alexiscarter/metab/archive/master.zip)
+[https://github.com/alexiscarter/metab/archive/master.zip](https://github.com/alexiscarter/metab/archive/master.zip)  
+It includes data and scripts.
+<br>
 
+Set the working directory before starting the tutorials:  
+```
+setwd("YourPath/metab-master")
+```
 
 ## Authors
 Simon Morvan and Alexis Carteron,
@@ -39,5 +44,5 @@ Corresponding articles:
 source('http://bioconductor.org/biocLite.R')
 biocLite('phyloseq')
 biocLite('dada2')
-install.packages(c('ggplot2', 'vegan')
+install.packages(c('ggplot2', 'vegan', 'gtools')
 ```
