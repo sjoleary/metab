@@ -1,21 +1,22 @@
 ---
-title: "Phyloseq workflow"
+title: "Analyse des communautés fongiques / Fungal communities analysis </span>"
 author: "Alexis Carteron & Simon Morvan"
-date: \today
-output: html_document
+output:
+  html_document:
+    toc: true
 ---
-
-## Analyse des communautés fongiques / <span style="color:darkblue"> Fungal communities analysis </span>
+<br>
+Date: `r Sys.time()`
 <br>
 
 #### Pourquoi phyloseq? / <span style="color:darkblue"> Why Phyloseq? </span>
-* For practical reasons: Easy to use at first (when you have built the S4 object), quick and nice functions and figures
+* For practical reasons: Easy to use at first (when you have built the S4 object), quick and nice functions and figures (great FAQ)
 * Reproducible reason
+* Currently being developed and improved by biostatistician 
 Other great resources are available (e.g.: [Rhea pipeline](https://lagkouvardos.github.io/Rhea/))
-* Currently being developed and improved (great FAQ)
 <br>
 
-### 1. Commençons ! / <span style="color:darkblue"> Let's start </span>
+### 1. Commençons! / <span style="color:darkblue"> Let's start! </span>
 
 #### Charger les librairies / <span style="color:darkblue"> Load packages </span>
 ```{r, include = TRUE, message = FALSE}
@@ -23,7 +24,9 @@ library(phyloseq)
 library(vegan)
 library(ggplot2)
 ```
-Built with R version `r getRversion()` and Phyloseq version `r packageVersion('phyloseq')` and a Linux machine image 4.4.0-64-generic
+R version `r getRversion()`  
+Phyloseq version `r packageVersion('phyloseq')`  
+Linux machine image 4.4.0-64-generic
 
 <br>
 
@@ -40,7 +43,7 @@ load("data/seqtab.nochim.rdata")
 ```
 <br>
 
-#### Construire l'objet phyloseq / <span style="color:darkblue"> Construct phyloseq object </span>
+#### Construire l'objet Phyloseq / <span style="color:darkblue"> Construct the Phyloseq object </span>
 ```{r, include = TRUE}
 ps <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows=FALSE), 
                sample_data(soiltab), 
@@ -56,7 +59,7 @@ sample_data(ps)$forest = factor(sample_data(ps)$forest, levels = c('AS', 'Mixed'
 ```
 <br>
 
-#### Commencer directement avec l'objet Phyloseq / <span style="color:darkblue"> Start directly from Phyloseq object </span>
+#### Pour commencer directement avec l'objet Phyloseq / <span style="color:darkblue"> To start directly from Phyloseq object </span>
 ```{r, include = TRUE}
 #load(file = "data/ps.rdata")
 #ps
@@ -72,6 +75,7 @@ ntaxa(ps)
 ntaxa(ps.fungi)
 ```
 Filtered `r ntaxa(ps) - ntaxa(ps.fungi)` non-fungal taxa 
+<br>
 <br>
 
 #### Enlever les taxons avec seulement 1 ou 2 sequences au total / <span style="color:darkblue"> Remove singletons and doubletons </span>
@@ -111,10 +115,8 @@ tax_table(ps.fungi.nosd.log)[1:2, 1:2]
 ```
 <br>
 
-#### Profondeur de sequencage apres filtrage de la canalisation Dada2 / <span style="color:darkblue"> Sequencing depth per samples after filtering of Dada2 pipeline</span>
+#### Profondeur de sequencage après filtrage de la canalisation Dada2 / <span style="color:darkblue"> Sequencing depth per samples after filtering of Dada2 pipeline</span>
 ```{r, include = TRUE, cache = TRUE, fig.height = 5, fig.width = 9}
-#fig.height, fig.width
-# 
 plot_bar(ps, x = "Sample", y = "Abundance", fill = "Kingdom") +
   geom_bar(stat="identity", color = "black") +
   labs(x = "Sample ID", y = "Reads abundance")
@@ -140,7 +142,7 @@ plot_bar(ps.fungi, fill = "Phylum") +
 ![Map](Other_materials/map_plot3.png)
 <br>
 
-### 3. Ordination non-contrainte / <span style="color:darkblue"> Unconstrained ordination </span>
+### 3. Ordination non contrainte / <span style="color:darkblue"> Unconstrained ordination </span>
 #### NMDS avec measure de dissimilarité de Bray-Curtis / <span style="color:darkblue"> NMDS with Bray-Curtis measure dissimilarity (aka Steinhaus) </span>
 ```{r, include = TRUE, cache = FALSE}
 ord.nmds.bray <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 20, distance = "bray") # /!\ number of tries need to be high enough to reach convergence
@@ -154,8 +156,6 @@ ord.nmds.bray <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 1000
 ```{r, include = TRUE, cache = TRUE, fig.height = 6, fig.width = 8}
 plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "horizon")
 ```
-<br>
-<br>
 
 #### Figure detaillée / <span style="color:darkblue"> Full plot </span>
 ```{r, include = TRUE, cache = TRUE, fig.height = 10, fig.width = 15}
@@ -168,10 +168,9 @@ plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bray, type="samples", color = "ho
   coord_fixed() +
   theme(text = element_text(size=20), strip.text = element_text(size=20))
 ```
-<br>
 
 #### NMDS avec les données binaire / <span style="color:darkblue"> NMDS with binary data </span>
-```{r, include = TRUE, echo = FALSE}
+```{r, include = TRUE, cache = TRUE}
 ord.nmds.bin <- ordinate(ps.fungi.nosd.log.sp, method="NMDS", k = 2, try = 20, distance = "bray", binary =TRUE)
 ```
 ```{r, include = FALSE, cache = TRUE}
@@ -190,7 +189,6 @@ plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bin, type="samples", color = "hor
   coord_fixed() +
   theme(text = element_text(size=20), strip.text = element_text(size=20))
 ```
-<br>
 
 ### 4. Analyse de variance: les communautés sont-elles statistiquement differentes? / <span style="color:darkblue"> Variance analysis: Are communities statistically different?  </span>
 ```{r, include = TRUE}
@@ -237,7 +235,7 @@ permutest(betadisp, permutations = 99999)
 ```
 <br>
 
-### 4. Ordination sous contraites: analyse de redondance / <span style="color:darkblue"> Constrained ordination: Redundancy Analysis (RDA) </span>
+### 5. Ordination sous contraites: analyse de redondance / <span style="color:darkblue"> Constrained ordination: Redundancy Analysis (RDA) </span>
 ```{r, include = TRUE, cache = TRUE}
 ord.rda <- ordinate(ps.fungi.nosd.log.sp, formula = ps.fungi.nosd.log.sp ~ Carbon+Nitrogen+pH, method="CAP", distance = "bray") # Uses Capscale function of Vegan package
 ```
@@ -260,7 +258,6 @@ vif.cca(ord.rda) # VIF < 10 should be fine
 ```{r, include = TRUE, cache = TRUE, fig.height = 6, fig.width = 8}
 plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling=1), type="sites",  color = "horizon") 
 ```
-<br>
 
 #### Enregistrer les valeurs propres / <span style="color:darkblue"> Get eigenvector values </span>
 ```{r, include = TRUE, cache = TRUE}
@@ -275,7 +272,6 @@ arrowdf <- data.frame(arrowmat) # Add labels
 rownames(arrowdf) <- c("Carbon","Nitrogen","pH") # Add rownames 
 arrowdf <- data.frame(labels = c("Carbon","Nitrogen","pH"), arrowmat) # Make a data.frame
 ```
-<br>
 
 ```{r, include = TRUE, cache = TRUE, fig.height = 10, fig.width = 15}
 plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling = 1), type="sites",  color = "horizon") + 
@@ -283,7 +279,7 @@ plot_ordination(ps.fungi.nosd.log.sp, vegan::scores(ord.rda, scaling = 1), type=
   geom_point(size = 8, alpha = .5) +
   scale_color_manual(name = "Horizon", values = c('darkgreen', 'sienna4', 'grey1', 'grey60', 'darkorange2')) +
   geom_segment(aes(xend = CAP1, yend = CAP2, x = 0, y = 0), size = .7, data = arrowdf, color = "black", arrow = arrow(length = unit(0.05, "npc"))) +
-  geom_text(aes(x = CAP1*1.15, y = CAP2*1.15, color = NULL, label = labels), size = 6, data = arrowdf, , show.legend = FALSE) +
+  geom_text(aes(x = CAP1*1.15, y = CAP2*1.15, color = NULL, label = labels), size = 6, data = arrowdf, show.legend = FALSE) +
   facet_wrap(~forest) +
   theme(text = element_text(size=18), strip.text = element_text(size=20)) +
   labs(x = paste("Constrained axis 1 (",round(evals[1]*100, 0),"%)"), y = paste("Constrained axis 2 (",round(evals[2]*100, 0),"%)"))
