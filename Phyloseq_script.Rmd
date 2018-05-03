@@ -1,19 +1,28 @@
 ---
-title: "Analyse des communautés fongiques / Fungal communities analysis </span>"
+title: "Analyse des communautés fongiques / Fungal communities analysis"
 author: "Alexis Carteron & Simon Morvan"
+date: "`r Sys.time()`"
 output:
   html_document:
     toc: true
 ---
+
+#### Pourquoi Phyloseq?
+* Pour des raisons pratiques: utilisation simple (une fois que l'objet S4 est assemblé), rapide pour faire graphiques et utiliser les fonctions
+* Améliore le partage, le stockage et la reproducibilité
+* Actuellement developpé et amélioré par des biostatisticiens (FAQ importante)  
 <br>
-Date: `r Sys.time()`
+Mais pas le seul outils à faire cela (e.g.: [Rhea](https://lagkouvardos.github.io/Rhea/) pipeline)
+<br>
 <br>
 
-#### Pourquoi phyloseq? / <span style="color:darkblue"> Why Phyloseq? </span>
-* For practical reasons: Easy to use at first (when you have built the S4 object), quick and nice functions and figures (great FAQ)
-* Reproducible reason
-* Currently being developed and improved by biostatistician 
-Other great resources are available (e.g.: [Rhea pipeline](https://lagkouvardos.github.io/Rhea/))
+#### Why Phyloseq?  
+* For practical reasons: Easy to use at first (once you have built the S4 object), quick and nice functions and figures 
+* Improve sharin, storagre and reproducibility
+* Currently being developed and improved by biostatistician (great FAQ)  
+<br>
+Other great resources are available (e.g.: [Rhea](https://lagkouvardos.github.io/Rhea/) pipeline)
+<br>
 <br>
 
 ### 1. Commençons! / <span style="color:darkblue"> Let's start! </span>
@@ -27,7 +36,6 @@ library(ggplot2)
 R version `r getRversion()`  
 Phyloseq version `r packageVersion('phyloseq')`  
 Linux machine image 4.4.0-64-generic
-
 <br>
 
 #### Importer les données / <span style="color:darkblue"> Data import </span>
@@ -130,17 +138,28 @@ plot_bar(ps.fungi,  x = "Sample", y = "Abundance", fill = "Phylum") +
   labs(x = "Sample ID", y = "Reads abundance of fungi")
 ```
 <br>
+<br>
+
+#### Schéma expérimental / <span style="color:darkblue"> Sampling design </span>
+![](Other_materials/map_plot3.png)
+
+**facet_wrap(~forest)**
+```{r, include = TRUE, cache = TRUE, fig.height = 5, fig.width = 9}
+plot_bar(ps.fungi, fill = "Phylum") +
+  geom_bar(stat="identity") +
+  facet_wrap(~forest, ncol = 3, scales = "free_x") +
+  labs(x = "Sample ID", y = "Reads abundance of fungi")
+```
+<br>
+<br>
+
+**facet_wrap(horizon~forest)**
 ```{r, include = TRUE, cache = TRUE, fig.height = 9, fig.width = 9}
 plot_bar(ps.fungi, fill = "Phylum") +
   geom_bar(stat="identity") +
   facet_wrap(horizon~forest, ncol = 3, scales = "free_x") +
   labs(x = "Sample ID", y = "Reads abundance of fungi")
 ```
-<br>
-
-#### Schéma expérimental / <span style="color:darkblue"> Sampling design </span>
-![Map](Other_materials/map_plot3.png)
-<br>
 
 ### 3. Ordination non contrainte / <span style="color:darkblue"> Unconstrained ordination </span>
 #### NMDS avec measure de dissimilarité de Bray-Curtis / <span style="color:darkblue"> NMDS with Bray-Curtis measure dissimilarity (aka Steinhaus) </span>
