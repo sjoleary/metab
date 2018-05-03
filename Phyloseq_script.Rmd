@@ -7,6 +7,8 @@ output:
     toc: true
 ---
 
+<br>
+
 #### Pourquoi Phyloseq?
 * Pour des raisons pratiques: utilisation simple (une fois que l'objet S4 est assemblé), rapide pour faire graphiques et utiliser les fonctions
 * Améliore le partage, le stockage et la reproducibilité
@@ -16,12 +18,12 @@ Mais pas le seul outils à faire cela (e.g.: [Rhea](https://lagkouvardos.github.
 <br>
 <br>
 
-#### Why Phyloseq?  
-* For practical reasons: Easy to use at first (once you have built the S4 object), quick and nice functions and figures 
-* Improve sharin, storagre and reproducibility
-* Currently being developed and improved by biostatistician (great FAQ)  
+#### <span style="color:darkblue">Why Phyloseq?</span> 
+* <span style="color:darkblue">For practical reasons: Easy to use at first (once you have built the S4 object), quick and nice functions and figures</span>
+* <span style="color:darkblue">Improve sharin, storagre and reproducibility</span>
+* <span style="color:darkblue">Currently being developed and improved by biostatistician (great FAQ)</span>  
 <br>
-Other great resources are available (e.g.: [Rhea](https://lagkouvardos.github.io/Rhea/) pipeline)
+<span style="color:darkblue">Other great resources are available (e.g.: [Rhea](https://lagkouvardos.github.io/Rhea/) pipeline)</span>
 <br>
 <br>
 
@@ -123,6 +125,11 @@ tax_table(ps.fungi.nosd.log)[1:2, 1:2]
 ```
 <br>
 
+>##### <span style="color:red">CHALLENGE</span>
+ Pouvez-vous trouvez le nombre de phylum de champignons?    
+<span style="color:darkblue"> Can you find the number of fungal phylum? </span>
+<br>
+
 #### Profondeur de sequencage après filtrage de la canalisation Dada2 / <span style="color:darkblue"> Sequencing depth per samples after filtering of Dada2 pipeline</span>
 ```{r, include = TRUE, cache = TRUE, fig.height = 5, fig.width = 9}
 plot_bar(ps, x = "Sample", y = "Abundance", fill = "Kingdom") +
@@ -209,6 +216,11 @@ plot_ordination(ps.fungi.nosd.log.sp, ord.nmds.bin, type="samples", color = "hor
   theme(text = element_text(size=20), strip.text = element_text(size=20))
 ```
 
+>##### <span style="color:red">CHALLENGE</span>
+Pouvez-vous faire une analyse en composantes principales?    
+<span style="color:darkblue"> Can you run a principal component analysis? </span>
+<br>
+
 ### 4. Analyse de variance: les communautés sont-elles statistiquement differentes? / <span style="color:darkblue"> Variance analysis: Are communities statistically different?  </span>
 ```{r, include = TRUE}
 metadata <- as(sample_data(ps.fungi.nosd.log.sp), "data.frame") # Export data
@@ -271,6 +283,11 @@ anova.cca(ord.rda)
 ```{r, include = TRUE, cache = TRUE}
 vif.cca(ord.rda) # VIF < 10 should be fine
 ```
+<br>
+
+>##### <span style="color:red">CHALLENGE</span>
+ Que feriez-vous pour exclure les données d'azote de la RDA?    
+<span style="color:darkblue"> What if you want to exclude Nitrogen data of the RDA? </span>
 <br>
 
 #### Figure rapide / <span style="color:darkblue"> Quick plot </span>
