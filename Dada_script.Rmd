@@ -1,21 +1,15 @@
 ---
 title: "DADA2 pipeline"
 author: "Alexis Carteron & Simon Morvan"
+date: "`r Sys.time()`"
 output: 
   html_document:
     toc: true
 
 ---
-  
-  
-Date: `r Sys.time()`
-<br>
+
 <br>
     
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-  
 # Introduction
 <br>
 
@@ -41,10 +35,10 @@ Before starting, we must take a few precautions:
 # Commençons ! / <span style="color:darkblue"> Let's start ! </span>
 <br>
 
-Nous allons tout d'abord chargé la librairie DADA2. Vous devriez avoir la denière version: 1.6.0.  
+Nous allons tout d'abord chargé la librairie DADA2. Vous devriez avoir la denière version: `packageVersion('dada2')`.  
 Puis nous allons créer une variable (path) indiquant le chemin qui permettra d'accéder aux objets dont nous allons avoir besoin.  
 
-<span style="color:darkblue"> First, we're going to load the DADA2 package. You should have the latest version : 1.6.0. Then we're going to create a variable (path) indicating the path which will allow to access the objects required for this pipeline.  </span>
+<span style="color:darkblue"> First, we're going to load the DADA2 package. You should have the latest version: `packageVersion('dada2')`. Then we're going to create a variable (path) indicating the path which will allow to access the objects required for this pipeline.  </span>
 ```{r package, include=TRUE}
 library(dada2); packageVersion("dada2")
 path <- "data/ITS_sub/"
@@ -450,30 +444,24 @@ Nous voyons enfin le bout du pipeline avec cette importante étape d'assignation
 <span style="color:darkblue"> We are finally going to the end of the pipeline with this important step of taxonomic assignment. Thanks to the implementation of the naïve Bayesian classification method, the **assignTaxonomy** function takes as input all the sequences to be classified, and a set of reference sequences with known taxonomy to issue taxonomic assignments with a minimum bootstrap confidence specified with the *minBoot* parameter. The database of references (UNITE) is accessible on this link https://unite.ut.ee/repository.php </span>  
 
 
-
-
-
 ```{r assign_taxo, include=TRUE,cache=TRUE}
-# taxotab <- assignTaxonomy(seqtab.nochim,
-#                               refFasta = # "reference_database/sh_general_release_dynamic_01.12.2017.fasta", 
-#                               minBoot = 50, #Default 50. The minimum bootstrap confidence for # assigning a taxonomic level.
-#                               outputBootstraps = TRUE)    
-#
+taxotab <- assignTaxonomy(seqtab.nochim,
+                          refFasta = "reference_database/sh_general_release_dynamic_01.12.2017.fasta",
+                          minBoot = 50, #Default 50. The minimum bootstrap confidence for # assigning a taxonomic level.
+                          outputBootstraps = TRUE)    
+
 ```
 <br>
 
 #### Examinons les résulats ! / <span style="color:darkblue"> Let's inspect the results ! </span> 
 
 ```{r taxo_exam, include=TRUE,cache=TRUE}
-
-# View(taxotab)
-# unique(unname(taxotab$tax[,7])) # Number of unique species
-# save(taxtab, file="data/taxotab.01.05.rdata")
-
+unique(unname(taxotab$tax[,7])) # Number of unique species
+#save(taxtab, file="data/taxotab.01.05.rdata")
 ```
 
-Nous obtenons **546** espèces différentes.  
- <span style="color:darkblue"> We obtained **546** different species. </span>
+Nous obtenons **`r length(unname(taxotab$tax[,7]))`** ASV différents dont **`r length(unique(unname(taxotab$tax[,7])))-1`** identifiés à l'espèce.  
+ <span style="color:darkblue"> We obtained **`r length(unname(taxotab$tax[,7]))`** different ASVs of which **`r length(unique(unname(taxotab$tax[,7])))-1`** have been identified at the species level</span>
 
 >#### <span style="color:red">CHALLENGE</span>
  Pouvez-vous trouvez le nombre de famille différentes?    
