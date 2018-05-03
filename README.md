@@ -13,7 +13,11 @@ Phyloseq: [https://alexiscarter.github.io/metab/Phyloseq_script.html](https://al
 
 ## To download the repository
 Includes data and scripts  
-[https://github.com/alexiscarter/metab/archive/master.zip](https://github.com/alexiscarter/metab/archive/master.zip)
+[https://github.com/alexiscarter/metab/archive/master.zip](https://github.com/alexiscarter/metab/archive/master.zip)  
+Set the working directory before starting the tutorial  
+```
+setwd("YourPath/metab-master")
+```
 
 
 ## Authors
