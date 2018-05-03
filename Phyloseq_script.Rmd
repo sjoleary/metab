@@ -8,6 +8,13 @@ output: html_document
 ## Analyse des communautés fongiques / <span style="color:darkblue"> Fungal communities analysis </span>
 <br>
 
+#### Pourquoi phyloseq? / <span style="color:darkblue"> Why Phyloseq? </span>
+* For practical reasons: Easy to use at first (when you have built the S4 object), quick and nice functions and figures
+* Reproducible reason
+Other great resources are available (e.g.: [Rhea pipeline](https://lagkouvardos.github.io/Rhea/))
+* Currently being developed and improved (great FAQ)
+<br>
+
 ### 1. Commençons ! / <span style="color:darkblue"> Let's start </span>
 
 #### Charger les librairies / <span style="color:darkblue"> Load packages </span>
@@ -127,6 +134,10 @@ plot_bar(ps.fungi, fill = "Phylum") +
   facet_wrap(horizon~forest, ncol = 3, scales = "free_x") +
   labs(x = "Sample ID", y = "Reads abundance of fungi")
 ```
+<br>
+
+#### Schéma expérimental / <span style="color:darkblue"> Sampling design </span>
+![Map](Other_materials/map_plot3.png)
 <br>
 
 ### 3. Ordination non-contrainte / <span style="color:darkblue"> Unconstrained ordination </span>
