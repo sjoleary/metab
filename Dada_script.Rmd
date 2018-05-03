@@ -9,7 +9,8 @@ output:
 ---
 
 <br>
-    
+
+
 # Introduction
 <br>
 
@@ -266,15 +267,17 @@ L'avantage de DADA2 réside dans la conservation d'un résumé des informations 
 
 <center>
 
-#### Unique sequences
+![](https://media1.tenor.com/images/ea6d27c2da26e6011e6e71559a1579f7/tenor.gif)
 
-![](https://media1.tenor.com/images/ea6d27c2da26e6011e6e71559a1579f7/tenor.gif?itemid=6117577)
+</center>  
 
-</center>  <br>
+<br>
+
 
 
 # Inférence des échantillons / <span style="color:darkblue"> Sample Inference</span>  
 <br>
+
 ```{r dada, include=TRUE,cache=TRUE,}
 dadaFs <- dada(derepFs, 
                err = errF, 
@@ -294,17 +297,18 @@ dadaRs[[1]]
 ```
 <br>
 
-# Fusion des séquences pairées / <span style="color:darkblue">Merging paired reads</span>  
+# Fusion des séquences pairées / <span style="color:darkblue">Merging paired reads</span>
+
 <br>
 
 <center>
 
-#### <span style="color:red"> FUSION! </span>
-![](https://media.giphy.com/media/TbYgHMnICI1A4/giphy.gif)
+![FUSION !](https://media.giphy.com/media/TbYgHMnICI1A4/giphy.gif)
+
 </center>
 
-
 <br>
+
 Tout l'intérêt du séquençage en paire réside dans le but de fusionner les deux brins afin d'accroitre notre confiance en leur fiabilité. La fusion permet également d'obtenir des amplicons plus long.  
 La fonction **mergePairs** nécessite qu'on lui fournisse les objets calculés dans les deux étapes précédentes (derep et dada). Puis, les paramètres que nous pouvons modifiés librement sont:
 
@@ -329,16 +333,15 @@ mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs,
 <br>
 
 #### Examinons les résultats! / <span style="color:darkblue"> Let's inspect the results! </span> 
-<br>
 
 ```{r merge_inspect, include=TRUE,cache=TRUE}
 head(mergers[[1]])
 max(mergers[[1]]$nmatch) # Largest overlap 
 min(mergers[[1]]$nmatch) # Smallest overlap           
 ```
-<br>
 
 # Tableau des ASVs / <span style="color:darkblue"> ASVs table </span>  
+
 <br>
 
 ASV signifie variants de séquences d'amplicons. C'est le nom donné aux OTUs de DADA2. Cependant ils sont bien différents des OTUs car ils n'ont à aucun moment été regroupés (à part les séquences identiques).  
@@ -374,7 +377,9 @@ hist(nchar(getSequences(seqtab)),xlab="Size", ylab="Frequency", main = "ASVs len
 ![](http://mythologie-grecque.e-monsite.com/medias/images/chime-re-tue-bellerophone.jpg)
 
 </center>
+
 <br>
+
 Cette étape vise à éliminer toutes les séquences non biologiques, les échantillons du tableau des ASV sont regroupés *(method="pooled")* pour l'identification. D'autres méthodes peuvent être utilisées comme la méthode consensus où chaque échantillon est vérifié *individuellement* pour identifier les bimères.  
 
 <span style="color:darkblue"> This step aims at removing all non-biological sequences, the samples in the ASV table are all pooled together for bimera identification. Other methods can be used like the consensus method where samples are checked *individually* for bimeras.</span>  
@@ -445,23 +450,27 @@ Nous voyons enfin le bout du pipeline avec cette importante étape d'assignation
 
 
 ```{r assign_taxo, include=TRUE,cache=TRUE}
-taxotab <- assignTaxonomy(seqtab.nochim,
-                          refFasta = "reference_database/sh_general_release_dynamic_01.12.2017.fasta",
-                          minBoot = 50, #Default 50. The minimum bootstrap confidence for # assigning a taxonomic level.
-                          outputBootstraps = TRUE)    
-
+#taxotab <- assignTaxonomy(seqtab.nochim,
+#                          refFasta = #"reference_database/sh_general_release_dynamic_01.12.2017.fasta",
+#                          minBoot = 50) #Default 50. The minimum bootstrap #confidence for # assigning a taxonomic level.
+#      
+# load("data/taxotab.rdata")
 ```
 <br>
 
-#### Examinons les résulats ! / <span style="color:darkblue"> Let's inspect the results ! </span> 
+#### Examinons les résultats ! / <span style="color:darkblue"> Let's inspect the results ! </span> 
 
 ```{r taxo_exam, include=TRUE,cache=TRUE}
-unique(unname(taxotab$tax[,7])) # Number of unique species
-#save(taxtab, file="data/taxotab.01.05.rdata")
+# view(taxotab)
+# unique(unname(taxotab[,7])) # Number of unique species
+
 ```
 
-Nous obtenons **`r length(unname(taxotab$tax[,7]))`** ASV différents dont **`r length(unique(unname(taxotab$tax[,7])))-1`** identifiés à l'espèce.  
- <span style="color:darkblue"> We obtained **`r length(unname(taxotab$tax[,7]))`** different ASVs of which **`r length(unique(unname(taxotab$tax[,7])))-1`** have been identified at the species level</span>
+```{r taxo_view, include=TRUE,cache=TRUE}
+#Nous obtenons **`r length(unname(taxotab[,7]))`** ASV différents dont **`r #length(unique(unname(taxotab[,7])))-1`** identifiés à l'espèce.  
+# <span style="color:darkblue"> We obtained **`r length(unname(taxotab[,7]))`** #different ASVs of which **`r length(unique(unname(taxotab[,7])))-1`** have been #identified at the species level</span>
+
+```
 
 >#### <span style="color:red">CHALLENGE</span>
  Pouvez-vous trouvez le nombre de famille différentes?    
