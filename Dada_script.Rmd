@@ -17,7 +17,7 @@ output:
 
 DADA2 est un pipeline bio-informatique ([Callahan et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27214047)). Il consiste en une série d'étapes permettant de filtrer les séquences brutes obtenues grâce au séquençage Illumina. La dernière étape vise à obtenir la taxonomie des séquences ayant été filtrées en vue d'étudier la communauté microbienne. 
 
-DADA2 a deux particularités qui le distingue des autres pipeline courament utilisés. D'une part, il va procéder à modélisation de l'erreur dûe au séquençage ce qui est censé permettre des distinguer les séquences mutantes, des séquences érronées. D'autre part, contrairement à d'autres pipelines comme QIIME ou Mothur, DADA2 ne regroupe pas les séquences similaires à 97% en Unités Taxonomiques Opérationelles (OTUs). Ses **Variants de Séquences d'Amplicons (ASVs)** ne subissent pas de regroupement si les séqences ne sont pas identiques à 100%.  
+DADA2 a deux particularités qui le distingue des autres pipeline courament utilisés. D'une part, il va procéder à modélisation de l'erreur dûe au séquençage ce qui est censé permettre des distinguer les séquences mutantes, des séquences érronées. D'autre part, contrairement à d'autres pipelines comme QIIME ou Mothur, DADA2 ne regroupe pas les séquences similaires à 97% en Unités Taxonomiques Opérationelles (OTUs). Ses **Variants de Séquences d'Amplicons (ASVs)** ne subissent pas de regroupement si les séqences ne sont pas identiques à 100%. Voir figure ci-dessous.  
 
 A l'origine construit pour les séquences de gène marqueur 16S (Bacteria), nous l'utiliserons avec des séquences de gène marqueur ITS (Fungi) provenant d'un séquençage en paire Illumina MiSEQ 2x300 paires de bases. Afin d'accélérer l'exécution  de chaques étapes, nous avons sous-échantilloner aléatoirement un jeu de données afin d'avoir 1000 séquences par échantillons.  
 
@@ -32,12 +32,42 @@ De manière générale avant de débuter ce pipeline, il faut prendre quelques p
  Attention, cette option ne marche pas sous Windows.</span>  
 
 <br>
+Cette figure extraite de [Hugerth et Andersson, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28928718) illustre la différence théorique entre OTUs et ASVs. Chaque couleur représente une clade. Les étoiles jaunes indiquent des mutations, les étoiles rouges indiquent des erreurs d'amplification ou de séquençage. La taille de l'espace entre les séquences indique leur regroupement.  
+
+<span style="color:darkblue">
+This figure taken from [Hugerth and Andersson, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28928718) illustrates the theoretical difference between OTUs and ASV. Each color represents a clade. Yellow stars indicate mutations, red stars indicate amplification or sequencing errors. The size of the space between the sequences indicates their clustering.</span>
+
+<center>
+
+![](Other_materials/ASV_vs_OTU.png) 
+
+</center>
+
+<br>
+
+**(A) OTUs regroupés à 100 % d'identité.**  
+La moindre variation de séquences provoque la création d'un nouveau groupe. Les séquences mutantes et les séquences erronées sont traitées de la même manière.  
+**(B) OTUs regroupés à 97 % d'identité.**  
+Un regroupement plus large permet de ne plus considérer les séquences erronées, cependant les séquences mutantes seront également regroupées dans le groupe consensus.  
+**(C) ASVs**  
+L'apprentissage du taux d'erreur permet théoriquement de regrouper les séquences erronées avec les séquences consensus. En revanche, les séquences mutantes sont considérées à part entière.
+
+
+<span style="color:darkblue"> **(A) 100 % identity clustered OTUs.** </span>  
+<span style="color:darkblue"> The slightest variation of sequences causes the creation of a new group. The mutant sequences and the erroneous sequences are treated similarly. </span>   
+<span style="color:darkblue"> **(B) 97 % identity clustered OTUs.** </span>  
+<span style="color:darkblue"> A wider grouping allows to no longer consider the erroneous sequences, however the mutant sequences will also be clustered in the consensus group.</span>  
+<span style="color:darkblue"> **(C) ASVs.** </span>  
+<span style="color:darkblue"> Learning the error rates theoretically enables to group the erroneous sequences with the consensus sequences. In contrast, the mutant sequences are considered integrally.</span>
+
+
+<br>
 
 <span style="color:darkblue">
 DADA2 is a bioinformatics pipeline created by [Callahan et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27214047). It consists is a series of steps which filter the raw sequences obtained with Illumina sequencing. The final step is to obtain the taxonomy of the sequences that have been filtered in order to study the microbial community.  
 
 <span style="color:darkblue">
-DADA2 has two major features which distinguishes it from other commonly used pipelines. On one hand, it will proceed to the modeling of the sequencing error  which is supposed to make it possible to distinguish mutant sequences from erroneous sequences. On the other hand, unlike other pipelines such as QIIME or Mothur, DADA2 does not cluster 97% similar sequences in Operational Taxonomy Units (OTUs). Its **Amplicon Sequence Variants** (ASVs) are not grouped if the sequences are not 100% identical.  
+DADA2 has two major features which distinguishes it from other commonly used pipelines. On one hand, it will proceed to the modeling of the sequencing error  which is supposed to make it possible to distinguish mutant sequences from erroneous sequences. On the other hand, unlike other pipelines such as QIIME or Mothur, DADA2 does not cluster 97% similar sequences in Operational Taxonomy Units (OTUs). Its **Amplicon Sequence Variants** (ASVs) are not grouped if the sequences are not 100% identical. See figure above. 
 
 <span style="color:darkblue">
 Originally constructed for 16S marker gene sequences (Bacteria), we will use it with ITS marker gene (Fungi) sequences from Illumina MiSEQ 2x300 bp paired-end sequencing. To speed up the execution of each step, we randomly sub-sampled a dataset in order to only keep 1000 sequences per sample.
@@ -54,8 +84,14 @@ In general, before starting this pipeline, we must take some precautions:
 
 <br>
 
-![](/Other_materials/DADA2_workflow.png)
-  
+<center>
+
+![](Other_materials/DADA2_workflow.png)
+
+</center>
+
+<br>
+
 # Commençons ! / <span style="color:darkblue"> Let's start ! </span>
 <br>
 
@@ -95,7 +131,7 @@ fnRs <- sort(list.files(path, pattern="_R2.fastq"))
 
 Etant donné que les paires de fichiers fastq sens et antisens appartiennent au même échantillon, nous allons créer une variable qui extrait le nom de cet échantillon. Dans ce cas, nous partons du principe que les noms des fichiers fastq ont un format: SAMPLENAME_XXX.fastq.  
 
-<span style="color:darkblue">Given that the forward/reverse fastq pairs belong to the same sample, we are going to extract the name and save it in a variable. In this case we assume that the filenames have this type of format: SAMPLENAME_XXX.fastq.</span>
+<span style="color:darkblue">Given that the forward/reverse fastq pairs belong to the same sample, we are going to extract the name and save it in a variable. In this case, we assume that the filenames have this type of format: SAMPLENAME_XXX.fastq.</span>
 
 ```{r samplenames, include=TRUE}
 sample.names <- sapply(strsplit(fnFs, "_"), `[`, 1)
@@ -127,7 +163,7 @@ sample.names
 </center>
 <br>
 
-# Profile de qualité / <span style="color:darkblue">Quality profiles</span>  
+# Profil de qualité / <span style="color:darkblue">Quality profile</span>  
 <br>
 
 Cette première étape permet de visualiser la qualité des séquences grâce au Q score associé à chaque nucléotide.  
@@ -159,7 +195,11 @@ Q score|Precision
 20|99 %
 30|99.9 %
 40|99.99 %
-<br>
+
+Un autre outil plus complet pour évaluer la qualité des séquence:  [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
+
+<span style="color:darkblue"> Another tool for evaluating sequence quality: [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
+</span>
 
 # Filtrage et tronquage / <span style="color:darkblue"> Filtering and Trimming </span>  
 <br>
@@ -223,7 +263,7 @@ pourc_disc
 ```
 <br>
 
-#### Plus de la moitié des séquences n'ont pas passé nos paramètres de filtrage!  
+#### Près de la moitié des séquences n'ont pas passé nos paramètres de filtrage!  
 
 <center>
 
@@ -231,13 +271,18 @@ pourc_disc
 
 </center>
 
-#### <span style="color:darkblue">More than half the reads haven't passed through the filtering parameters !</span>  
+#### <span style="color:darkblue"> Almost half of the reads didn't pass through the filtering parameters!</span>  
 
 <br>
 
 >#### <span style="color:red">CHALLENGE</span> 
 Tracer le profil de qualité du premier échantillon une fois filtré et le comparer à son profil de qualité non-filtré. Utiliser la fonction **plotQualityProfile**.  <br>
-<span style="color:darkblue">Draw the quality profile of the first sample once filtered and compare it to its unfiltered quality profile. Use the **plotQualityProfile** function. </span>
+<span style="color:darkblue">Draw the quality profile of the first sample once filtered and compare it to its unfiltered quality profile. Use the **plotQualityProfile** function.
+
+
+D'autres outils de filtrage existent tel que : [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
+
+<span style="color:darkblue">Other filtering tools exist like: [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic).</span>
 
 <br>
 
