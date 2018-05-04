@@ -526,12 +526,13 @@ Nous voyons enfin le bout du pipeline avec cette importante étape d'assignation
 
 
 ```{r assign_taxo, include=TRUE,cache=TRUE}
-#taxotab <- assignTaxonomy(seqtab.nochim,
-#                          refFasta = #"reference_database/sh_general_release_dynamic_01.12.2017.fasta",
-#                          minBoot = 50, #Default 50. The minimum bootstrap #confidence for # assigning a taxonomic level.
-#                         multithread=TRUE)
-#             
-load("data/taxotab.rdata")
+taxotab <- assignTaxonomy(seqtab.nochim,
+                          refFasta = "reference_database/sh_general_release_dynamic_01.12.2017.fasta",
+                          minBoot = 50, #Default 50. The minimum bootstrap #confidence for # assigning a taxonomic level.
+                          multithread=TRUE)
+ 
+save(taxotab, file = "data/taxotab.rdata")
+#load("data/taxotab.rdata")
 ```
 <br>
 
