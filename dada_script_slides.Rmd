@@ -1,0 +1,74 @@
+---
+title: "DADA2 pipeline"
+author: "Alexis Carteron & Simon Morvan"
+date: "`r Sys.time()`"
+output: slidy_presentation
+---
+
+# Introduction
+DADA2 is a bioinformatics pipeline created by [Callahan et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27214047). It consists is a series of steps which filter the raw sequences obtained with Illumina sequencing. The final step is to obtain the taxonomy of the sequences that have been filtered in order to study the microbial community. 
+
+<center> ![](Other_materials/DADA2_workflow.png) </center>
+
+# Introduction
+*Redde Caesari quae sunt Caesaris* : this tutorial was largely inspired by the original [DADA2 tutorial](https://benjjneb.github.io/dada2/tutorial.html)
+
+# OTU vs ASV
+<center> ![](Other_materials/ASV_vs_OTU.png) </center>
+<br>
+This figure taken from [Hugerth and Andersson, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28928718)
+
+# Let's start!
+dsdf
+```{r package}
+library(dada2); packageVersion("dada2")
+path <- "data/ITS_sub/"
+```
+
+# Let's check where the path leads to....
+<center> ![](https://media.giphy.com/media/HVr4gFHYIqeti/giphy.gif) </center>  
+
+# Let's check where the path leads to....
+<center> ![](https://media.giphy.com/media/HVr4gFHYIqeti/giphy.gif) </center>  
+
+```{r path}
+list.files(path)
+```
+
+# Let's check where the path leads to....
+
+```{r path2}
+fnFs <- sort(list.files(path, pattern="_R1.fastq"))
+fnRs <- sort(list.files(path, pattern="_R2.fastq"))
+
+sample.names <- sapply(strsplit(fnFs, "_"), `[`, 1)
+sample.names 
+
+fnFs <- file.path(path, fnFs)
+fnRs <- file.path(path, fnRs)
+```
+
+# For the maniacs among us, this script allows to order the names of the samples.
+```{r maniaque}
+library(gtools)
+sample.names <- mixedsort(sample.names) 
+fnFs <- mixedsort(fnFs)
+fnRs <- mixedsort(fnRs)
+sample.names
+```
+
+<center>
+![](https://38.media.tumblr.com/d75b1fc1705b4ea3f53ea56a80b192ce/tumblr_mnda0xLsdD1rsdj6zo4_500.gif)
+</center>
+<br>
+
+# Profil de qualité / <span style="color:darkblue">Quality profile</span>  
+<br>
+
+Cette première étape permet de visualiser la qualité des séquences grâce au Q score associé à chaque nucléotide.  
+
+<span style="color:darkblue"> This first step allows to visualize the sequences quality thanks to the individual Q score of each nucleotide </span>
+```{r quality_profile_ind, include=TRUE, cache=TRUE,fig.height=4,fig.width=5,fig.align='center'}
+plotQualityProfile(fnFs[1]) # 1st Forward sample
+plotQualityProfile(fnRs[1]) # 1st Reverse sample
+```
