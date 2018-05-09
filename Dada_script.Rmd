@@ -494,25 +494,42 @@ Le tableau qui suit permet de voir combien de séquences ont été éliminées �
 <span style="color:darkblue">The following table shows how many sequences were eliminated at each step. An excessive loss in the number of sequences may indicate a problem. For example, if too few sequences pass the bimera removal step, it may indicate that there are still bits of primers with ambiguous nucleotides.</span>
 ```{r track, include=TRUE,cache=TRUE}
 getN <- function(x) sum(getUniques(x))
-track <- cbind(out, # input & filtered
-               round(((out[,2]/out[,1])*100),2), # % (filtered / input) 
-               sapply(mergers, getN), # Merged 
-               round(((sapply(mergers, getN)/out[,1])*100),2), # % (Merged / Input)
-               rowSums(seqtab.nochim),# Non-chimeric
-               round(((rowSums(seqtab.nochim)/out[,1])*100),2),# % (Non-chimeric / Input)
-               rowSums(seqtab.nochim.bin)) # Number of ASVs per sample 
-
-colnames(track) <- c("Input", 
-                    "Filter", 
-                    "%Filt/In",
-                    "Merge",
-                    "%Mer/In", 
-                    "Non-chim",
-                    "%Non-chim/In",
-                    "#ASV/sample") # Column names
+track <- data.frame(Input=as.numeric(out[,1]), # input
+                    Filtered=as.numeric(out[,2]), # filtered
+                    "Filt//In"=as.numeric(round(((out[,2]/out[,1])*100),2)),# % (Filtered / Input)
+                    Merge = as.numeric(sapply(mergers, getN)), # Merged 
+                    "Mer//In"=as.numeric(round(((sapply(mergers, getN)/out[,1])*100),2)),# % (Merged / Input)
+                    Nonchim = as.numeric(rowSums(seqtab.nochim)),# Non-chimeric                       
+                    "Nonchim//In"=as.numeric(round(((rowSums(seqtab.nochim)/out[,1])*100),2)),# % (Non-chimeric / Input)
+                    ASV = as.numeric(rowSums(seqtab.nochim.bin))) # Number of ASVs per sample 
 rownames(track) <- sample.names # Row names
-track<-as.data.frame(track)
 head(track)
+```
+
+<br>
+
+Une image vaut mille mots !  
+
+<span style="color:darkblue">One picture is worth a thousand word!</span>
+
+
+```{r plot_track, include=TRUE,fig.height=4,fig.width=5,fig.align='center'}
+library(ggplot2)
+library(reshape2)
+
+gtrack<- track[,c(1,2,4,6)]
+gtrack$ID <- rownames(gtrack)
+
+lgtrack <- melt(gtrack, id.vars="ID")
+bar_track <- ggplot(lgtrack ,aes(x=ID, y=as.numeric(value), fill=variable)) +
+      geom_bar(stat="identity", position = "identity") + 
+      theme_classic() + # Theme
+      theme(axis.ticks.length=unit(0.3,"cm")) + # Ticks size
+      theme(axis.text.x = element_text(angle=45) , legend.title = element_blank())+ # Changes the x labels orientation & delete legend title
+  scale_x_discrete(name ="Sample ID", limits=rownames(track))+ # Changes x-axis title & sorts the x label names
+  scale_y_continuous(name="Abundance", breaks=seq(from = 0, to = 1000, by = 100))+ #Changes y-axis title & sets the y breaks.
+  ggtitle("Track")# Main title
+bar_track 
 ```
 <br> 
   
