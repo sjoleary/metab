@@ -1,4 +1,4 @@
-# Metab
+## Workshop
 eDNA metabarcoding: From raw data to RDA
 _(Currently in development)_
 
