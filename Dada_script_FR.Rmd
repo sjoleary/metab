@@ -1,12 +1,11 @@
 ---
-title: "DADA2 pipeline"
+title: "DADA2 pipeline - Français"
 author: "Alexis Carteron & Simon Morvan"
 date: "`r Sys.time()`"
 output: 
   html_document:  
   
     toc: true
-
 ---
 
 <br>
@@ -34,8 +33,7 @@ De manière générale avant de débuter ce pipeline, il faut prendre quelques p
 <br>
 Cette figure extraite de [Hugerth et Andersson, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28928718) illustre la différence théorique entre OTUs et ASVs. Chaque couleur représente une clade. Les étoiles jaunes indiquent des mutations, les étoiles rouges indiquent des erreurs d'amplification ou de séquençage. La taille de l'espace entre les séquences indique leur regroupement.  
 
-<span style="color:darkblue">
-This figure taken from [Hugerth and Andersson, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28928718) illustrates the theoretical difference between OTUs and ASV. Each color represents a clade. Yellow stars indicate mutations, red stars indicate amplification or sequencing errors. The size of the space between the sequences indicates their clustering.</span>
+
 
 <center>
 
@@ -52,59 +50,21 @@ Un regroupement plus large permet de ne plus considérer les séquences erronée
 **(C) ASVs**  
 L'apprentissage du taux d'erreur permet théoriquement de regrouper les séquences erronées avec les séquences consensus. En revanche, les séquences mutantes sont considérées à part entière.
 
-
-<span style="color:darkblue"> **(A) 100 % identity clustered OTUs.** </span>  
-<span style="color:darkblue"> The slightest variation of sequences causes the creation of a new group. The mutant sequences and the erroneous sequences are treated similarly. </span>   
-<span style="color:darkblue"> **(B) 97 % identity clustered OTUs.** </span>  
-<span style="color:darkblue"> A wider grouping allows to no longer consider the erroneous sequences, however the mutant sequences will also be clustered in the consensus group.</span>  
-<span style="color:darkblue"> **(C) ASVs.** </span>  
-<span style="color:darkblue"> Learning the error rates theoretically enables to group the erroneous sequences with the consensus sequences. In contrast, the mutant sequences are considered integrally.</span>
-
-
 <br>
 
-<span style="color:darkblue">
-DADA2 is a bioinformatics pipeline created by [Callahan et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27214047). It consists is a series of steps which filter the raw sequences obtained with Illumina sequencing. The final step is to obtain the taxonomy of the sequences that have been filtered in order to study the microbial community.  
-
-<span style="color:darkblue">
-DADA2 has two major features which distinguishes it from other commonly used pipelines. On one hand, it will proceed to the modeling of the sequencing error  which is supposed to make it possible to distinguish mutant sequences from erroneous sequences. On the other hand, unlike other pipelines such as QIIME or Mothur, DADA2 does not cluster 97% similar sequences in Operational Taxonomy Units (OTUs). Its **Amplicon Sequence Variants** (ASVs) are not grouped if the sequences are not 100% identical. See figure above. 
-
-<span style="color:darkblue">
-Originally constructed for 16S marker gene sequences (Bacteria), we will use it with ITS marker gene (Fungi) sequences from Illumina MiSEQ 2x300 bp paired-end sequencing. To speed up the execution of each step, we randomly sub-sampled a dataset in order to only keep 1000 sequences per sample.
-Finally, *Redde Caesari quae sunt Caesaris* : this tutorial was largely inspired by the original [DADA2 tutorial](https://benjjneb.github.io/dada2/tutorial.html).
-
-<span style="color:darkblue">
-In general, before starting this pipeline, we must take some precautions:
-
-1.   <span style="color:darkblue"> Samples must be **demultiplexed**: split into individual per-sample fastqs  
-2.    <span style="color:darkblue">If the sequences are paired-end, the forward and reverse sequences have to be in distinct fastq files but must contain reads in **matched order**.  
-3.   <span style="color:darkblue"> The nucleotides which are not part of the amplicon (primers, adapters, bar-code) have to be removed. They can be removed at the filtring step.  
-4.    <span style="color:darkblue">Most functions have a multithreading option that allows faster computing time by accessing multiple processors. Just specify *multithread = TRUE* to enable it. </span> <span style="color:red">Warning, this option does not work under Windows.
-</span>
-
-<br>
-
-<center>
-
-![](Other_materials/DADA2_workflow.png)
-
-</center>
-
-<br>
-
-# Commençons ! / <span style="color:darkblue"> Let's start ! </span>
+# Commençons ! 
 <br>
 
 Nous allons tout d'abord chargé la librairie DADA2. Vous devriez avoir la denière version: `packageVersion('dada2')`.  
 Puis nous allons créer une variable (path) indiquant le chemin qui permettra d'accéder aux objets dont nous allons avoir besoin.  
 
-<span style="color:darkblue"> First, we're going to load the DADA2 package. You should have the latest version: `packageVersion('dada2')`. Then we're going to create a variable (path) indicating the path which will allow to access the objects required for this pipeline.  </span>
+
 ```{r package, include=TRUE}
 library(dada2); packageVersion("dada2")
 path <- "data/ITS_sub/"
 ```
 
-#### Vérifions ce qu'il y a au bout du chemin... /<span style="color:darkblue"> Let's check where the path leads to.... </span>
+#### Vérifions ce qu'il y a au bout du chemin... 
 
 <center>
 
@@ -118,11 +78,8 @@ list.files(path)
 ```
 Vous devriez voir les noms des fichiers fastq.  
 
-<span style="color:darkblue"> You should see the names of the fastq files. </span>  
-  
 Nous allons maintenant lire les noms des fichiers fastq, et manipuler leur chaine de charactères variables pour obtenir une liste des fastq sens et antisens. La fonction sort permet d'obtenir le même ordre entre les fastq sens et antisens.  
 
-<span style="color:darkblue"> Now, we're goign to read in the names of the fastq files, and perform some string manipulation to get lists of the forward and reverse fastq files. The sort function ensures forward/reverse reads are in the same order.</span>
 
 ```{r sort, include=TRUE}
 fnFs <- sort(list.files(path, pattern="_R1.fastq"))
@@ -131,7 +88,6 @@ fnRs <- sort(list.files(path, pattern="_R2.fastq"))
 
 Etant donné que les paires de fichiers fastq sens et antisens appartiennent au même échantillon, nous allons créer une variable qui extrait le nom de cet échantillon. Dans ce cas, nous partons du principe que les noms des fichiers fastq ont un format: SAMPLENAME_XXX.fastq.  
 
-<span style="color:darkblue">Given that the forward/reverse fastq pairs belong to the same sample, we are going to extract the name and save it in a variable. In this case, we assume that the filenames have this type of format: SAMPLENAME_XXX.fastq.</span>
 
 ```{r samplenames, include=TRUE}
 sample.names <- sapply(strsplit(fnFs, "_"), `[`, 1)
@@ -139,7 +95,6 @@ sample.names
 ```
 
 Nous allons maintenant préciser le chemin d'accès aux objets fnFs et fnRS.
-<span style="color:darkblue">Specify the full path to the fnFs and fnRs.</span>  
 
 ```{r file.path, include=TRUE}
 fnFs <- file.path(path, fnFs)
@@ -148,14 +103,12 @@ fnRs <- file.path(path, fnRs)
 
 
 Pour les plus maniaques d'entre nous, ce script permet d'ordonner les noms des échantillons.  
-
-<span style="color:darkblue"> For the maniacs among us, this script allows to order the names of the samples.</span>  
-```#{r maniaque, include=TRUE}
-#library(gtools) # This code is not working, we are trying to fix it
-#sample.names <- mixedsort(sample.names) #
-#fnFs <- mixedsort(fnFs)
-#fnRs <- mixedsort(fnRs)
-#sample.names
+```{r maniaque, include=TRUE}
+library(gtools)
+sample.names <- mixedsort(sample.names) 
+fnFs <- mixedsort(fnFs)
+fnRs <- mixedsort(fnRs)
+sample.names
 ```
 
 <center>
@@ -163,21 +116,18 @@ Pour les plus maniaques d'entre nous, ce script permet d'ordonner les noms des �
 </center>
 <br>
 
-# Profil de qualité / <span style="color:darkblue">Quality profile</span>  
+# Profil de qualité  
 <br>
 
 Cette première étape permet de visualiser la qualité des séquences grâce au Q score associé à chaque nucléotide.  
 
-<span style="color:darkblue"> This first step allows to visualize the sequences quality thanks to the individual Q score of each nucleotide </span>
 ```{r quality_profile_ind, include=TRUE, cache=TRUE,fig.height=4,fig.width=5,fig.align='center'}
-plotQualityProfile(fnFs[1]) # 1st Forward sample
-plotQualityProfile(fnRs[1]) # 1st Reverse sample
+plotQualityProfile(fnFs[1]) # 1er echantillon sens
+plotQualityProfile(fnRs[1]) # 1er echantillon anti-sens
 ```
 
 Dans ces figures, la médianne est en vert, et les quartiles en orange pointillé.
 Ici, nous avons choisi de visualiser le premier échantillon sens (fnFs[1]) et antisens (fnRs[1]), mais il est possible de visualiser plusieurs graphiques en même temps (fnFs[x:y]) ou les aggréger comme ce qui suit.  
-
-<span style="color:darkblue"> In these figures, the median is in green and the quartiles are the dotted orange lines. Here we only plotted the first forward and reverse fastq (fnFs[1] and fnRs[1]), but it is possible to plot multiple figures(fnFs[x:y]) or aggregate them as follows. </span>
 
 ```{r quality_profile_agg, include=TRUE, cache=TRUE,fig.height=4,fig.width=5,fig.align='center'}
 plotQualityProfile(fnFs, aggregate = TRUE)
@@ -186,8 +136,6 @@ plotQualityProfile(fnRs, aggregate = TRUE)
 
 L'analyse de ces graphiques nous permet de choisir les paramètres de filtrage et de rognage de la prochaine étape.
 En effet, l'indice de Q score nous renseigne sur la précision du séquençage (voir tableau ci-dessous).  
-
-<span style="color:darkblue"> The analysis of these figures helps to choose the filtring and trimming parameters of the next step. The Q score index gives us information on sequencing's accuracy (see table). </span>  
 
 Q score|Precision
 --|--
@@ -198,15 +146,12 @@ Q score|Precision
 
 Un autre outil plus complet pour évaluer la qualité des séquence:  [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
 
-<span style="color:darkblue"> Another tool for evaluating sequence quality: [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
-</span>
 
-# Filtrage et tronquage / <span style="color:darkblue"> Filtering and Trimming </span>  
+# Filtrage et tronquage  
 <br>
 
 Tout d'abord nous allons créer un dossier (filtered_pairedend) et des objets (filtFs et filtRs) pour stoquer les séquences filtrées.  
 
-<span style="color:darkblue"> First we will create a directoy (filtered_pairedend) and  objects (filtFs and filtRs) to store the filtered sequences.</span>  
 
 ```{r filt_path, include=TRUE}
 filt_path <- file.path(path, "filtered_pairedend") 
@@ -216,7 +161,6 @@ filtRs <- file.path(filt_path, paste0(sample.names, "_R_filt.fastq.gz"))
 
 Procédons avec la fonction **filterAndTrim**, sa sortie sera stocké dans l'objet **out**.  
 
-<span style="color:darkblue"> Let's procede with the **filterAndTrim** function, its output will be stored in the **out** object </span>  
 ```{r filt_trim, include=TRUE,cache=TRUE}
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, 
                      truncQ=6,
@@ -240,26 +184,14 @@ D'autres paramètres peuvent également être modifiés, ils sont accessibles à
 
 <br>
 
-<span style="color:darkblue">First, the function needs the unfiltered sequences (fnFs and FnRs) as well as the names of the objects of the filtered sequences (filtFs and filtRs). Several parameters can then be modified as we wish:
 
-*   <span style="color:darkblue">truncQ: sets a minimum Q score. At the first instance of a quality score less than or equal to truncQ, the sequence is truncated.
-*   <span style="color:darkblue">truncLen: sets the length at which the sequences will be truncated. Sequences shorter than the length are eliminated.
-*   <span style="color:darkblue">trimLeft: sets the length that will be removed on the 5' side of the reads. This allows you to remove the primers if it has not been done beforehand.  
-(Primers:  
-ITS3_KYO2: 	GATGAAGAACGYAGYRAA = 18bp  
-ITS4:	TCCTCCGCTTATTGATATGC = 20b)
-*   <span style="color:darkblue">maxEE: sets the maximum number of “expected errors” allowed in a read. This filter is based on the Q index. The more the number is increased, the less strict we are. 
-
-<span style="color:darkblue">Other settings can also be changed, they are accessible on the help page of the function : ?FilterAndTrim.</span>
-
-<br>
 
 #### Visualisation du filtrage / <span style="color:darkblue">Filtering visualization</span>
 ```{r out, include=TRUE,cache=TRUE}
-pourc <- cbind((out[,2]/out[,1])*100) # Percentage filtered sequence / non-filtered sequence
-pourc_disc <- cbind(out, pourc) # combines out and pourc
+pourc <- cbind((out[,2]/out[,1])*100) # Pourcentage des séquences filtrées / séquences non-filtrées
+pourc_disc <- cbind(out, pourc) # Combine l'objet out et pourc
 pourc_disc 
-(mean(out[,2])/mean(out[,1]))*100 # Mean percentage 
+(mean(out[,2])/mean(out[,1]))*100 # Pourcentage moyen
 ```
 <br>
 
@@ -271,27 +203,22 @@ pourc_disc
 
 </center>
 
-#### <span style="color:darkblue"> Almost half of the reads didn't pass through the filtering parameters!</span>  
 
 <br>
 
 >#### <span style="color:red">CHALLENGE</span> 
 Tracer le profil de qualité du premier échantillon une fois filtré et le comparer à son profil de qualité non-filtré. Utiliser la fonction **plotQualityProfile**.  <br>
-<span style="color:darkblue">Draw the quality profile of the first sample once filtered and compare it to its unfiltered quality profile. Use the **plotQualityProfile** function.
 
 
 D'autres outils de filtrage existent tel que : [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
 
-<span style="color:darkblue">Other filtering tools exist like: [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic).</span>
-
 <br>
 
-# Apprentissage des taux d'erreur / <span style="color:darkblue">Error Rates Learning</span>  
+# Apprentissage des taux d'erreur 
+
 <br>
 
 Cet étape consiste à estimer le taux d'erreur de séquençage. Son but est de permettre de différencier les séquences mutantes et les séquences érronées.Le modèle d'erreur est calculé en alternant l'estimation des taux d'erreur et l'inférence de la composition de l'échantillon jusqu'à ce qu'ils convergent vers une solution cohérente. <br> 
-
-<span style="color:darkblue"> This step consist in estimating the error rates due to sequencing. Its purpose is to differentiate between mutant sequences and false sequences. The error model is computed by alternating estimation of the error rates and inference of sample composition until they converge on a jointly consistent solution. </span>
 
 ```{r err, include=TRUE,cache=TRUE}
 errF <- learnErrors(filtFs)
@@ -301,11 +228,10 @@ errR <- learnErrors(filtRs)
 
 Le nombre minimum de séquences à utiliser pour l'apprentissage des taux d'erreur peut être précisé avec le paramètre *nreads*.  
 
-<span style="color:darkblue"> The minimum number of sequences to use for error rate learning can be specified with the *nreads* parameter.</span>
-
 <br>
 
-#### Visualisation du taux d'erreur / <span style="color:darkblue">Error rate visualization</span>
+#### Visualisation du taux d'erreur 
+
 ```{r viz_err, include=TRUE,cache=TRUE,warning=FALSE,fig.height=4,fig.width=5,fig.align='center'}
 plotErrors(errF, nominalQ=TRUE)
 plotErrors(errR, nominalQ=TRUE)
@@ -313,16 +239,12 @@ plotErrors(errR, nominalQ=TRUE)
 
 Les taux d'erreur pour chaque transition  (A->C, A->G,...) sont affichés. Chaque point est un taux d'erreur observé pour chaque score de qualité consensuel. La ligne noire montre l'erreur après convergence. La ligne rouge montre l'erreur sous la définition nominale de la valeur Q (pour la technologie Illumina).  
 
-<span style="color:darkblue"> The error rates for each possible transition (eg. A->C, A->G, …) are shown. Points are the observed error rates for each consensus quality score. The black line shows the estimated error rates after convergence. The red line shows the error rates expected under the nominal definition of the Q-value (for Illumina technology).</span>  
-
 <br>
 
-# Déreplication / <span style="color:darkblue">Dereplicating</span>  
+# Déreplication  
 <br>
 
 Dans cette étape, toutes les séquences identiques vont être regroupées en *séquences uniques* auxquelles sont attribuées des *abondances*. Cela va diminuer les temps de calcul subséquants en éliminant des comparaisons redondantes. Les séquences dérépliquées prennent le nom des échantillons d'où elles proviennent.  
-
-<span style="color:darkblue">Combines all identical sequencing reads into into *unique sequences* with a corresponding *abundance*. It will reduce subsequent computation time by eliminating redundant comparisons. The dereplicated sequences take the name of the samples from which they come.</span>  
 
 ```{r derep, include=TRUE,cache=TRUE}
 derepFs <- derepFastq(filtFs)
@@ -334,8 +256,6 @@ names(derepRs) <- sample.names
 
 L'avantage de DADA2 réside dans la conservation d'un résumé des informations de qualité associées à chaque *séquence unique*. Le profil de qualité consensuel d'une *séquence unique* est la moyenne des qualités de position des lectures dérépliquées. Ces profils de qualité informent le modèle d'erreur de l'étape suivante d'inférence d'échantillon, ce qui augmente considérablement la précision de DADA2. 
 
-<span style="color:darkblue">The advantage of DADA2 lies in the fact that it retains a summary of the quality information associated with each *unique sequence*. The consensus quality profile of a *unique sequence* is the average of the positional qualities from the dereplicated reads. These quality profiles inform the error model of the subsequent sample inference step, significantly increasing DADA2’s accuracy.</span>  
-
 <center>
 
 ![Unique sequences](https://media1.tenor.com/images/ea6d27c2da26e6011e6e71559a1579f7/tenor.gif)
@@ -346,7 +266,7 @@ L'avantage de DADA2 réside dans la conservation d'un résumé des informations 
 
 
 
-# Inférence des échantillons / <span style="color:darkblue"> Sample Inference</span>  
+# Inférence des échantillons  
 <br>
 
 ```{r dada, include=TRUE,cache=TRUE,}
@@ -371,7 +291,7 @@ dadaRs[[1]]
 ```
 <br>
 
-# Fusion des séquences pairées / <span style="color:darkblue">Merging paired reads</span>
+# Fusion des séquences pairées 
 
 <br>
 
@@ -390,14 +310,6 @@ La fonction **mergePairs** nécessite qu'on lui fournisse les objets calculés d
 *   maxMismatch : définit le nombre maximal d'incompatibilité nucléotidique dans le chevauchement. <br>
 D'autres paramètres peuvent également être modifiés, ils sont accessibles à la page d'aide de la fonction: ?mergePairs. Par exemple, si returnRejects = TRUE, les paires qui ont été rejetées en raison de discordances dans la région de chevauchement sont conservés dans la sortie.  
 
-<span style="color:darkblue">The whole point of paired-end sequencing lies in the goal of merging the two strands to increase our confidence in their reliability. Merging also makes it possible to obtain longer amplicons.  
-The function **mergePairs**  needs to be provided with the objects computed in the two preceding stages (derep and dada). Then, the parameters we can freely modify are:</span>
-
-* <span style="color:darkblue"> minOverlap: sets the minimum size of the overlap of the sense and antisense strands for their merge to be accepted. Sequences that are not merged are discarded. </span> <br> 
-* <span style="color:darkblue"> maxMismatch: sets the maximum number of nucleotidic incompatibilities in the overlap. </span> <br> 
-
-<span style="color:darkblue"> Other settings can also be changed, they are accessible on the help page of the function : ?mergePairs. For example, if returnRejects = TRUE, pairs that were rejected because of mismatches in the overlap region are kept in the output.</span>
-
 ```{r merge, include=TRUE,cache=TRUE}
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, 
                       minOverlap = 12, 
@@ -406,23 +318,22 @@ mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs,
 ```
 <br>
 
-#### Examinons les résultats! / <span style="color:darkblue"> Let's inspect the results! </span> 
+#### Examinons les résultats! 
 
 ```{r merge_inspect, include=TRUE,cache=TRUE}
 head(mergers[[1]])
-max(mergers[[1]]$nmatch) # Largest overlap 
-min(mergers[[1]]$nmatch) # Smallest overlap           
+max(mergers[[1]]$nmatch) # Taille du plus grand chevauchement (overlap)
+min(mergers[[1]]$nmatch) # Taille du plus petit chevauchement 
 ```
 
 <br>
 
-# Tableau des ASVs / <span style="color:darkblue"> ASVs table </span>  
+# Tableau des ASVs  
 
 <br>
 
 Nous avons enfin nos ASVs que nous allons stoquer dans l'objet *seqtab*.   
 
-<span style="color:darkblue"> We finally have our ASVs which we are going to store in the *seqtab* object. </span>  
 
 ```{r seqtab, include=TRUE,cache=TRUE}
 seqtab <- makeSequenceTable(mergers)
@@ -434,10 +345,9 @@ seqtab[,1]
 Nous obtenons **`r dim(seqtab)[2]`** ASVs à partir des **`r as.integer(colSums(out)[1])`** séquences brutes que nous avions au début.  
 seqtab[,1] renseigne le nombre de fois qu'on retrouve la séquence du premier ASV dans chaque échantillon.  
 
-<span style="color:darkblue">We get **`r dim(seqtab)[2]`**  ASVs from the **`r as.integer(colSums(out)[1])`** raw sequences we had at the beginning. seqtab [, 1] gives the number of times the first ASV's sequence is found in each sample.</span>    
 <br>
 
-#### Inspectons la longueur de nos ASVs / <span style="color:darkblue"> Let's inspect the ASVs' lengths</span>  
+#### Inspectons la longueur de nos ASVs 
 
 <br>
 
@@ -446,7 +356,7 @@ hist(nchar(getSequences(seqtab)),xlab="Size", ylab="Frequency", main = "ASVs len
 ```
 <br>
 
-# Suppression des chimères / <span style="color:darkblue"> Removing chimeras </span>   
+# Suppression des chimères   
 <br>
 <center>
 
@@ -458,8 +368,6 @@ hist(nchar(getSequences(seqtab)),xlab="Size", ylab="Frequency", main = "ASVs len
 
 Cette étape vise à éliminer toutes les séquences non biologiques, les échantillons du tableau des ASV sont regroupés *(method="pooled")* pour l'identification. D'autres méthodes peuvent être utilisées comme la méthode consensus où chaque échantillon est vérifié *individuellement* pour identifier les bimères.  
 
-<span style="color:darkblue"> This step aims at removing all non-biological sequences, the samples in the ASV table are all pooled together for bimera identification. Other methods can be used like the consensus method where samples are checked *individually* for bimeras.</span>  
-
 
 ```{r chim_remove, include=TRUE,cache=TRUE}
 seqtab.nochim <- removeBimeraDenovo(seqtab, 
@@ -470,47 +378,44 @@ seqtab.nochim <- removeBimeraDenovo(seqtab,
 ```
 <br>
 
-#### Examinons les résultats ! / <span style="color:darkblue"> Let's inspect the results !</span> 
+#### Examinons les résultats ! 
 
 <br>
 
 ```{r chim_dim, include=TRUE,,fig.height=4,fig.width=5,fig.align='center'}
-round((sum(seqtab.nochim)/sum(seqtab)*100),2) # Percentage of the total sequence reads
-hist(nchar(getSequences(seqtab.nochim)),xlab="Size", ylab="Frequency", main = "Non-chimeric ASVs length", xlim=c(250,450), ylim=c(0,250)) # Lenght of the non-chimeric sequences
+round((sum(seqtab.nochim)/sum(seqtab)*100),2) # Pourcentage du nombre total de séquences non-chimériques / nombre total de séquences
+hist(nchar(getSequences(seqtab.nochim)),xlab="Size", ylab="Frequency", main = "Non-chimeric ASVs length", xlim=c(250,450), ylim=c(0,250)) # Longueur de séquences non-chimériques
 ```
 
-Maintenant nous pouvons transformer les occurences des ASVs en présence / absence. ce qui va permettre quantifie le nombre d'ASVs par échantillons.  
+Maintenant nous pouvons transformer les occurences des ASVs en présence / absence. Ceci permet de quantifier le nombre d'ASVs par échantillons.  
 
-<span style="color:darkblue"> Now we can  transform the ASVs occurrences in presence / absence which will allow to quantify the number of ASVs per sample.</span>  
+
 ```{r nochim_bin, include=TRUE,cache=TRUE}
 seqtab.nochim.bin <- ifelse(seqtab.nochim>0,1,0) 
 ```
 <br>
 
-# Tableau de suivi / <span style="color:darkblue">Track table</span>  
+# Tableau de suivi
 <br>
 Le tableau qui suit permet de voir combien de séquences ont été éliminées à chaque étape. Une chute trop grande du nombre de séquences peut indiquer un problème. Par exemple, si peu de séquences passent l'étape de la suppresion des bimères cela peu indiquer qu'il reste des bouts d'amorces avec de nucléotides ambigües.  
 
-<span style="color:darkblue">The following table shows how many sequences were eliminated at each step. An excessive loss in the number of sequences may indicate a problem. For example, if too few sequences pass the bimera removal step, it may indicate that there are still bits of primers with ambiguous nucleotides.</span>
 ```{r track, include=TRUE,cache=TRUE}
 getN <- function(x) sum(getUniques(x))
-track <- data.frame(Input=as.numeric(out[,1]), # input
-                    Filtered=as.numeric(out[,2]), # filtered
-                    "Filt//In"=as.numeric(round(((out[,2]/out[,1])*100),2)),# % (Filtered / Input)
-                    Merge = as.numeric(sapply(mergers, getN)), # Merged 
-                    "Mer//In"=as.numeric(round(((sapply(mergers, getN)/out[,1])*100),2)),# % (Merged / Input)
-                    Nonchim = as.numeric(rowSums(seqtab.nochim)),# Non-chimeric                       
-                    "Nonchim//In"=as.numeric(round(((rowSums(seqtab.nochim)/out[,1])*100),2)),# % (Non-chimeric / Input)
-                    ASV = as.numeric(rowSums(seqtab.nochim.bin))) # Number of ASVs per sample 
-rownames(track) <- sample.names # Row names
+track <- data.frame(Input=as.numeric(out[,1]), # Séquences brutes 
+                    Filtered=as.numeric(out[,2]), # Séquences filtrées
+                    "Filt//In"=as.numeric(round(((out[,2]/out[,1])*100),2)),# % (Filtrées / Brutes)
+                    Merge = as.numeric(sapply(mergers, getN)), # Mergés 
+                    "Mer//In"=as.numeric(round(((sapply(mergers, getN)/out[,1])*100),2)),# % (Mergés / Brutes)
+                    Nonchim = as.numeric(rowSums(seqtab.nochim)),# Non-chimériques                       
+                    "Nonchim//In"=as.numeric(round(((rowSums(seqtab.nochim)/out[,1])*100),2)),# % (Non-chimériques  / Brutes)
+                    ASV = as.numeric(rowSums(seqtab.nochim.bin))) # Nombre d'ASVs par échantillons 
+rownames(track) <- sample.names # Noms des lignes
 head(track)
 ```
 
 <br>
 
 Une image vaut mille mots !  
-
-<span style="color:darkblue">One picture is worth a thousand word!</span>
 
 
 ```{r plot_track, include=TRUE,fig.height=4,fig.width=5,fig.align='center'}
@@ -523,29 +428,27 @@ gtrack$ID <- rownames(gtrack)
 lgtrack <- melt(gtrack, id.vars="ID")
 bar_track <- ggplot(lgtrack ,aes(x=ID, y=as.numeric(value), fill=variable)) +
       geom_bar(stat="identity", position = "identity") + 
-      theme_classic() + # Theme
-      theme(axis.ticks.length=unit(0.3,"cm")) + # Ticks size
-      theme(axis.text.x = element_text(angle=45) , legend.title = element_blank())+ # Changes the x labels orientation & delete legend title
-  scale_x_discrete(name ="Sample ID", limits=rownames(track))+ # Changes x-axis title & sorts the x label names
-  scale_y_continuous(name="Abundance", breaks=seq(from = 0, to = 1000, by = 100))+ #Changes y-axis title & sets the y breaks.
-  ggtitle("Track")# Main title
+      theme_classic() + # Thème
+      theme(axis.ticks.length=unit(0.3,"cm")) + # Taille de taquets
+      theme(axis.text.x = element_text(angle=45) , legend.title = element_blank())+ # Change l'orientation des  x labels  & supprime le titre de la légende
+  scale_x_discrete(name ="Sample ID", limits=rownames(track))+ # Change le titre de l'axe x et le pas de l'axe
+  scale_y_continuous(name="Abundance", breaks=seq(from = 0, to = 1000, by = 100))+ # Change le titre de l'axe y et le pas de l'axe.
+  ggtitle("Track")# Titre principal
 bar_track 
 ```
 <br> 
   
 
-# Assignation taxonomique / <span style="color:darkblue">  Taxonomy assignment </span>  
+# Assignation taxonomique   
 <br>
 
 Nous voyons enfin le bout du pipeline avec cette importante étape d'assignation taxonomique. Grâce à l'implémentation de la méthode de classification naïve bayésienne, la fonction **assignTaxonomy** prend en entrée l'ensemble de séquences à classer ainsi qu'un ensemble de séquences de référence avec une taxonomie connue. Les assignations taxonomiques sont données avec une confiance minimale de bootstrap spécifié avec le paramètre *minBoot*. La base de données de références (UNITE) est accessible sur ce lien https://unite.ut.ee/repository.php. D'autres bases de données sont également [disponibles](https://benjjneb.github.io/dada2/training.html).
-
-<span style="color:darkblue"> We are finally going to the end of the pipeline with this important step of taxonomic assignment. Thanks to the implementation of the naïve Bayesian classification method, the **assignTaxonomy** function takes as input all the sequences to be classified as well as reference set of sequences with known taxonomy. The taxonomic assignments are given with a minimum bootstrap confidence specified with the *minBoot* parameter. The database of references (UNITE) is accessible on this link https://unite.ut.ee/repository.php. Other databases are also [available](https://benjjneb.github.io/dada2/training.html). </span>  
 
 
 ```{r assign_taxo, include=TRUE,cache=TRUE}
 taxotab <- assignTaxonomy(seqtab.nochim,
                           refFasta = "reference_database/sh_general_release_dynamic_01.12.2017.fasta",
-                          minBoot = 50, #Default 50. The minimum bootstrap #confidence for # assigning a taxonomic level.
+                          minBoot = 50, # Par défaut = 50. Bootsrap minimum (représente le niveau de confiance pour l'assignation à un rang taxonomique).
                           multithread=TRUE)
  
 save(taxotab, file = "data/taxotab.rdata")
@@ -553,27 +456,21 @@ save(taxotab, file = "data/taxotab.rdata")
 ```
 <br>
 
-#### Examinons les résultats ! / <span style="color:darkblue"> Let's inspect the results ! </span> 
+#### Examinons les résultats ! 
 
 ```{r taxo_exam, include=TRUE,cache=TRUE}
-# view(taxotab) # Full taxonomy table 
-write.table(taxotab[1:5,], row.names = FALSE) # First 5 ASVs' taxonomy without the ASV sequence
-unique(unname(taxotab[,7])) # Number of unique species
+# view(taxotab) # Tableau taxonomique au complet 
+write.table(taxotab[1:5,], row.names = FALSE) # Taxonomy des 5 premiers ASV sans la séquence (row.nqmes=FALSE)
+unique(unname(taxotab[,7])) # Nombre d'espèces unique. 
 
 ```
 
-Nous obtenons **`r length(unname(taxotab[,7]))`** ASV différents dont **`r #
-length(unique(unname(taxotab[,7])))-1`** identifiés à l'espèce.  
-
-<span style="color:darkblue"> We obtained **`r length(unname(taxotab[,7]))`**
-different ASVs of which **`r length(unique(unname(taxotab[,7])))-1`** have been
-identified at the species level</span>
+Nous obtenons **`r length(unname(taxotab[,7]))`** ASV différents dont **`r length(unique(unname(taxotab[,7])))-1`** identifiés à l'espèce.  
 
 
 
 >#### <span style="color:red">CHALLENGE</span>
  Pouvez-vous trouvez le nombre de famille différentes?    
-<span style="color:darkblue"> Can you find the number of different families? </span><br>
 
 
 # Nota Bene 
@@ -591,10 +488,3 @@ identified at the species level</span>
 
 *   Les ASV sans assignation d'espèces n'ont pas été assignié à la même espèce dans plus de 50% des affectations basées sur le kmer bootstrap (voir [Wang et al., 2007](https://www.ncbi.nlm.nih.gov/pubmed/17586664) pour plus d'informations sur la méthode de classification bayesienne naïve).  
 <br>
-
-
-*   <span style="color:darkblue"> Dada2 does not throw away singleton reads. However, it's not supposed infers biological sequence variants that are only supported by a single read - singletons are assumed too difficult to differentiate from errors. 
-
-*    <span style="color:darkblue"> DADA2 consistently measures diversity across different filtering parameters and error rates. [OTU methods](https://twitter.com/bejcal/status/771010634074820608) do not. 
-
-*    <span style="color:darkblue"> The ASVs with no species assignment do not match the same species in over 50% of the bootstrap replicate kmer-based assignments (see [Wang et al., 2007](https://www.ncbi.nlm.nih.gov/pubmed/17586664) for more info on the naive Bayesian classifier method).
