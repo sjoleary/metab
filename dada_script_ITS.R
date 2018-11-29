@@ -86,4 +86,55 @@ filtRs <- file.path(path.cut, "filtered", basename(cutRs))
 out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs, maxN = 0, maxEE = c(3, 3), 
                      truncQ = 6, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = TRUE)  # on windows, set multithread = FALSE
 head(out)
-plotQualityProfile(filtFs[1:2])
+
+errF <- learnErrors(filtFs)
+errR <- learnErrors(filtRs)
+
+#plotErrors(errF, nominalQ=TRUE)
+#plotErrors(errR, nominalQ=TRUE)
+
+derepFs <- derepFastq(filtFs)
+names(derepFs) <- sample.names
+
+derepRs <- derepFastq(filtRs)
+names(derepRs) <- sample.names
+
+dadaFs <- dada(derepFs, 
+               err = errF, 
+               multithread=TRUE,
+               pool=TRUE)
+
+dadaRs <- dada(derepRs, 
+               err=errR,
+               multithread=TRUE,
+               pool=TRUE)
+
+mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, 
+                      minOverlap = 8, 
+                      maxMismatch = 0)
+
+min(mergers[[1]]$nmatch) # Smallest overlap           
+
+seqtab <- makeSequenceTable(mergers)
+
+dim(seqtab)
+
+hist(nchar(getSequences(seqtab)),xlab="Size", ylab="Frequency", main = "ASVs length") #, xlim=c(280,500), ylim=c(0,250))
+
+seqtab.nochim <- removeBimeraDenovo(seqtab, 
+                                    method = "pooled", 
+                                    #multithread = TRUE,
+                                    verbose = TRUE) 
+round((sum(seqtab.nochim)/sum(seqtab)*100),2)
+sort(nchar(getSequences(seqtab.nochim)))
+hist(nchar(getSequences(seqtab.nochim)),xlab="Size", ylab="Frequency", main = "Non-chimeric ASVs length") #, xlim=c(250,450), ylim=c(0,250)) # Lenght of the non-chimeric sequences
+
+#taxotab <- assignTaxonomy(seqtab.nochim,
+#                          refFasta = "reference_database/sh_general_release_dynamic_01.12.2017.fasta",
+#                          minBoot = 50, #Default 50. The minimum bootstrap #confidence for # assigning a taxonomic level.
+#                          multithread=TRUE)
+
+corr <- as.data.frame(cor(seqtab.nochim, method = "spearman"))
+indices <- as.data.frame(which(corr > .8 & corr <1, arr.ind = TRUE))
+corr.sel <- corr[sort(unique(indices$row)),sort(unique(indices$col))]
+heatmap(as.matrix(corr.sel), col = cm.colors(256), scale = "column")
