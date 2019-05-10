@@ -104,19 +104,6 @@ fnFs <- file.path(path, fnFs)
 fnRs <- file.path(path, fnRs)
 ```
 
-For the maniacs among us, this script allows to order the names of the samples.  
-```{r maniaque, include=TRUE}
-library(gtools)
-sample.names <- mixedsort(sample.names) 
-fnFs <- mixedsort(fnFs)
-fnRs <- mixedsort(fnRs)
-sample.names
-```
-
-<center>
-![](https://38.media.tumblr.com/d75b1fc1705b4ea3f53ea56a80b192ce/tumblr_mnda0xLsdD1rsdj6zo4_500.gif)
-</center>
-<br>
 
 # Quality profile
 <br>
