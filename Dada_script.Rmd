@@ -147,21 +147,6 @@ fnRs <- file.path(path, fnRs)
 ```
 
 
-Pour les plus maniaques d'entre nous, ce script permet d'ordonner les noms des échantillons.  
-
-<span style="color:darkblue"> For the maniacs among us, this script allows to order the names of the samples.</span>  
-```#{r maniaque, include=TRUE}
-#library(gtools) # This code is not working, we are trying to fix it
-#sample.names <- mixedsort(sample.names) #
-#fnFs <- mixedsort(fnFs)
-#fnRs <- mixedsort(fnRs)
-#sample.names
-```
-
-<center>
-![](https://38.media.tumblr.com/d75b1fc1705b4ea3f53ea56a80b192ce/tumblr_mnda0xLsdD1rsdj6zo4_500.gif)
-</center>
-<br>
 
 # Profil de qualité / <span style="color:darkblue">Quality profile</span>  
 <br>
