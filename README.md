@@ -29,7 +29,7 @@ install.packages(c('ggplot2', 'vegan', 'gtools')
 Dada: [https://alexiscarter.github.io/metab/Dada_script.html](https://alexiscarter.github.io/metab/Dada_script.html)  
 Phyloseq: [https://alexiscarter.github.io/metab/Phyloseq_script.html](https://alexiscarter.github.io/metab/Phyloseq_script.html)
 
-[Bilingual Français]  
+[Français]  
 Dada: [https://alexiscarter.github.io/metab/Dada_script_FR.html](https://alexiscarter.github.io/metab/Dada_script_FR.html)  
 
 [English]  
