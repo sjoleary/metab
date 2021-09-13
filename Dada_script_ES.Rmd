@@ -1,5 +1,5 @@
 ---
-title: "DADA2 pipeline - Français"
+title: "DADA2 pipeline - Español"
 author: "Alexis Carteron & Simon Morvan"
 date: "`r Sys.time()`"
 output: 
@@ -11,29 +11,27 @@ output:
 <br>
 
 
-# Introduction
+# Introducción
 <br>
 
-DADA2 est un pipeline bio-informatique ([Callahan et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27214047)). Il consiste en une série d'étapes permettant de filtrer les séquences brutes obtenues grâce au séquençage Illumina. La dernière étape vise à obtenir la taxonomie des séquences ayant été filtrées en vue d'étudier la communauté microbienne. 
+DADA2 es un pipeline bioinformático creado por [Callahan et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27214047). Consiste es una serie de pasos que filtran las secuencias crudas obtenidas con la secuenciación de Illumina. El último paso es obtener la taxonomía de las secuencias que han sido filtradas para estudiar la comunidad microbiana.  
 
-DADA2 a deux particularités qui le distingue des autres pipeline courament utilisés. D'une part, il va procéder à modélisation de l'erreur dûe au séquençage ce qui est censé permettre des distinguer les séquences mutantes, des séquences érronées. D'autre part, contrairement à d'autres pipelines comme QIIME ou Mothur, DADA2 ne regroupe pas les séquences similaires à 97% en Unités Taxonomiques Opérationelles (OTUs). Ses **Variants de Séquences d'Amplicons (ASVs)** ne subissent pas de regroupement si les séqences ne sont pas identiques à 100%. Voir figure ci-dessous.  
-
-A l'origine construit pour les séquences de gène marqueur 16S (Bacteria), nous l'utiliserons avec des séquences de gène marqueur ITS (Fungi) provenant d'un séquençage en paire Illumina MiSEQ 2x300 paires de bases. Afin d'accélérer l'exécution  de chaques étapes, nous avons sous-échantilloner aléatoirement un jeu de données afin d'avoir 1000 séquences par échantillons.  
-
-Enfin, *Redde Caesari quae sunt Caesaris* : ce tutoriel s'est largement inspiré du propre [tutoriel de DADA2](https://benjjneb.github.io/dada2/tutorial.html).  
-
-De manière générale avant de débuter ce pipeline, il faut prendre quelques précautions:  
-
-1.    Les échantillons doivent être **démultiplexés** chaque échantillon doit avoir son propre fichier fastq.  
-2.    En cas de séquençage en paire, les séquences sens et anti-sens doivent être dans deux fichier fastq distincts et être **dans le même ordre** dans les deux fichiers.  
-3.    Les nucléotides qui ne font pas partie de l'amplicon (amorces, adaptateurs, bar-code) doivent avoir été retirées. Dans le cas contraire, ils devront être à l'étape de filtrage.  
-4.    La plupart des fonctions présentées ont une option de multithreading qui permet d'accélerer les temps de calcul en accédant à plusieurs prorcesseurs. Il suffit d'indiquer *multithread = TRUE* pour l'activer.<span style="color:red">
- Attention, cette option ne marche pas sous Windows.</span>  
-
-<br>
-Cette figure extraite de [Hugerth et Andersson, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28928718) illustre la différence théorique entre OTUs et ASVs. Chaque couleur représente une clade. Les étoiles jaunes indiquent des mutations, les étoiles rouges indiquent des erreurs d'amplification ou de séquençage. La taille de l'espace entre les séquences indique leur regroupement.  
+DADA2 tiene dos características principales que lo distinguen de otros pipelines comúnmente utilizados. Por un lado, procede a la modelización del error de secuenciación que se supone permite distinguir las secuencias mutantes de las erróneas. Por otro lado, a diferencia de otros pipelines como QIIME o Mothur, DADA2 no agrupa el 97% de las secuencias similares en unidades taxonómicas operativas (Operational Taxonomy Units, OTU). Sus variantes de secuencia de ampliación (Amplicon Sequence Variants, ASVs) no se agrupan si las secuencias no son 100% idénticas. Véase la figura anterior. 
 
 
+Construido originalmente para secuencias del gen marcador 16S (Bacterias), lo utilizaremos con secuencias del gen marcador ITS (Hongos) procedentes de la secuenciación Illumina MiSEQ 2x300 bp paired-end. Para acelerar la ejecución de cada paso, submuestreamos aleatoriamente un conjunto de datos para conservar sólo 1000 secuencias por muestra.
+Por último, *Redde Caesari quae sunt Caesaris* : este tutorial se ha inspirado en gran medida en el original [tutorial DADA2](https://benjjneb.github.io/dada2/tutorial.html).
+
+
+En general, antes de iniciar este pipeline, debemos tomar algunas precauciones:
+
+1.   Las muestras deben ser **demultiplexadas**: divididas en archivos fastq individuales por muestra.  
+2.    2. Si las secuencias están emparejadas, las secuencias directa e inversa deben estar en archivos fastq distintos pero deben contener lecturas en **orden coincidente**.  
+3.   Los nucleótidos que no forman parte del amplicón (cebadores y adaptadores) deben ser eliminados. También se pueden eliminar en el paso de filtrado.  
+4.    La mayoría de las funciones tienen una opción de multihilo que permite un tiempo de cálculo más rápido al acceder a múltiples procesadores. Sólo hay que especificar *multithread = TRUE* para activarla. Atención, esta opción no funciona bajo Windows.
+</span>
+
+Esta figura tomada de [Hugerth y Andersson, 2017](https://www.ncbi.nlm.nih.gov/pubmed/28928718) ilustra la diferencia teórica entre OTUs y ASV. Cada color representa un clado. Las estrellas amarillas indican mutaciones, las rojas indican errores de amplificación o secuenciación. El tamaño del espacio entre las secuencias indica su agrupación.
 
 <center>
 
@@ -43,28 +41,27 @@ Cette figure extraite de [Hugerth et Andersson, 2017](https://www.ncbi.nlm.nih.g
 
 <br>
 
-**(A) OTUs regroupés à 100 % d'identité.**  
-La moindre variation de séquences provoque la création d'un nouveau groupe. Les séquences mutantes et les séquences erronées sont traitées de la même manière.  
-**(B) OTUs regroupés à 97 % d'identité.**  
-Un regroupement plus large permet de ne plus considérer les séquences erronées, cependant les séquences mutantes seront également regroupées dans le groupe consensus.  
+**(A) OTUs agrupadas con un 100% de identidad  
+La más mínima variación en las secuencias provoca la creación de un nuevo grupo. Las secuencias mutantes y erróneas se tratan de la misma manera.  
+**(B) OTUs agrupadas con un 97% de identidad  
+Una agrupación más amplia permite descartar las secuencias erróneas, aunque las secuencias mutantes también se agruparán en el grupo de consenso.  
 **(C) ASVs**  
-L'apprentissage du taux d'erreur permet théoriquement de regrouper les séquences erronées avec les séquences consensus. En revanche, les séquences mutantes sont considérées à part entière.
+En teoría, el aprendizaje de la tasa de error permite agrupar las secuencias erróneas con las secuencias de consenso. Sin embargo, las secuencias mutantes se consideran por derecho propio.
 
 <br>
 
-# Commençons ! 
+# ¡Comencemos! 
 <br>
 
-Nous allons tout d'abord chargé la librairie DADA2. Vous devriez avoir la denière version: `packageVersion('dada2')`.  
-Puis nous allons créer une variable (path) indiquant le chemin qui permettra d'accéder aux objets dont nous allons avoir besoin.  
-
+Primero cargaremos la biblioteca DADA2. Debería tener la última versión: `packageVersion('dada2')`.  
+A continuación, crearemos una variable path que indique la ruta de acceso a los objetos que necesitaremos.  
 
 ```{r package, include=TRUE}
 library(dada2); packageVersion("dada2")
 path <- "data/ITS_sub/"
 ```
 
-#### Vérifions ce qu'il y a au bout du chemin... 
+#### Comprobemos qué hay al final del camino... 
 
 <center>
 
@@ -76,9 +73,9 @@ path <- "data/ITS_sub/"
 ```{r path, include=TRUE}
 list.files(path)
 ```
-Vous devriez voir les noms des fichiers fastq.  
+Debería ver los nombres de los archivos fastq.  
 
-Nous allons maintenant lire les noms des fichiers fastq, et manipuler leur chaine de charactères variables pour obtenir une liste des fastq sens et antisens. La fonction sort permet d'obtenir le même ordre entre les fastq sens et antisens.  
+Ahora leeremos los nombres de los archivos fastq, y manipularemos su cadena variable para obtener una lista de fastqs sentido y antisentido. La función ordenar dará el mismo orden entre fastq sentido y antisentido.  
 
 
 ```{r sort, include=TRUE}
@@ -86,7 +83,7 @@ fnFs <- sort(list.files(path, pattern="_R1.fastq"))
 fnRs <- sort(list.files(path, pattern="_R2.fastq"))
 ```
 
-Etant donné que les paires de fichiers fastq sens et antisens appartiennent au même échantillon, nous allons créer une variable qui extrait le nom de cet échantillon. Dans ce cas, nous partons du principe que les noms des fichiers fastq ont un format: SAMPLENAME_XXX.fastq.  
+Como los pares de archivos fastq sentido y antisentido pertenecen a la misma muestra, crearemos una variable que extraiga el nombre de esa muestra. En este caso, suponemos que los nombres de los archivos fastq tienen un formato: SAMPLENAME_XXX.fastq.  
 
 
 ```{r samplenames, include=TRUE}
@@ -94,7 +91,8 @@ sample.names <- sapply(strsplit(fnFs, "_"), `[`, 1)
 sample.names 
 ```
 
-Nous allons maintenant préciser le chemin d'accès aux objets fnFs et fnRS.
+Ahora especificaremos la ruta de acceso a los objetos fnFs y fnRS.
+
 
 ```{r file.path, include=TRUE}
 fnFs <- file.path(path, fnFs)
@@ -102,41 +100,42 @@ fnRs <- file.path(path, fnRs)
 ```
 
 
-# Profil de qualité  
+# Perfil de calidad  
 <br>
 
-Cette première étape permet de visualiser la qualité des séquences grâce au Q score associé à chaque nucléotide.  
+Este primer paso nos permite visualizar la calidad de las secuencias gracias a la puntuación Q asociada a cada nucleótido.  
+
 
 ```{r quality_profile_ind, include=TRUE, cache=TRUE,fig.height=4,fig.width=5,fig.align='center'}
 plotQualityProfile(fnFs[1]) # 1er echantillon sens
 plotQualityProfile(fnRs[1]) # 1er echantillon anti-sens
 ```
 
-Dans ces figures, la médianne est en vert, et les quartiles en orange pointillé.
-Ici, nous avons choisi de visualiser le premier échantillon sens (fnFs[1]) et antisens (fnRs[1]), mais il est possible de visualiser plusieurs graphiques en même temps (fnFs[x:y]) ou les aggréger comme ce qui suit.  
+En estas figuras, la mediana aparece en verde, y los cuartiles en naranja punteado.
+Aquí hemos elegido visualizar la primera dirección de la muestra (fnFs[1]) y el antisentido (fnRs[1]), pero es posible visualizar varios gráficos al mismo tiempo (fnFs[x:y]) o agregarlos de la siguiente manera.  
 
 ```{r quality_profile_agg, include=TRUE, cache=TRUE,fig.height=4,fig.width=5,fig.align='center'}
 plotQualityProfile(fnFs, aggregate = TRUE)
 plotQualityProfile(fnRs, aggregate = TRUE)
 ```
 
-L'analyse de ces graphiques nous permet de choisir les paramètres de filtrage et de rognage de la prochaine étape.
-En effet, l'indice de Q score nous renseigne sur la précision du séquençage (voir tableau ci-dessous).  
+El análisis de estos gráficos nos permite elegir los parámetros de filtrado y recorte para el siguiente paso.
+De hecho, el índice de puntuación Q nos da información sobre la precisión de la secuenciación (véase la tabla siguiente).  
 
-Q score|Precision
+Resultado Q|Precisión
 --|--
 10|90 % 
 20|99 %
 30|99.9 %
 40|99.99 %
 
-Un autre outil plus complet pour évaluer la qualité des séquence:  [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
+Otra herramienta más completa para evaluar la calidad de la secuencia es [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).  
 
 
-# Filtrage et tronquage  
+# Filtrado y truncamiento  
 <br>
 
-Tout d'abord nous allons créer un dossier (filtered_pairedend) et des objets (filtFs et filtRs) pour stoquer les séquences filtrées.  
+Primero crearemos una carpeta (filtered_pairedend) y objetos (filtFs y filtRs) para detener las secuencias filtradas.  
 
 
 ```{r filt_path, include=TRUE}
@@ -145,7 +144,7 @@ filtFs <- file.path(filt_path, paste0(sample.names, "_F_filt.fastq.gz"))
 filtRs <- file.path(filt_path, paste0(sample.names, "_R_filt.fastq.gz"))
 ```
 
-Procédons avec la fonction **filterAndTrim**, sa sortie sera stocké dans l'objet **out**.  
+Proceda con la función **filterAndTrim**, su salida será almacenada en el objeto **out**.  
 
 ```{r filt_trim, include=TRUE,cache=TRUE}
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, 
@@ -156,32 +155,30 @@ out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs,
                      #multithread=TRUE)
                 
 ```
-En premier lieu, la fonction a besoin des séquences non filtrées (fnFs et FnRs) ainsi que les noms des objets des séquences filtrées (filtFs et filtRs). Plusieurs paramètres peuvent ensuite être modifiés à notre guise:  
+En primer lugar, la función necesita las secuencias no filtradas (fnFs y FnRs), así como los nombres de los objetos de las secuencias filtradas (filtFs y filtRs). A continuación, se pueden modificar varios parámetros según se desee:  
 
-*   truncQ : définit un l'indice Q score minimale. A la première instance d'un score de qualité inférieur ou égal à truncQ, la séquence est tronquée.
-*   truncLen : définit à quelle longueur les séquences vont être tronquées. Les séquences plus courtes que la longueur sont éliminées.
-*   trimLeft : définit la longueur que l'on coupe du côté 5' des séquences. Celà permet d'enlever les amorces si ça n'a pas été fait préalablement.   
-(Amorces:  
-ITS3_KYO2: 	GATGAAGAACGYAGYRAA = 18bp  
-ITS4:	TCCTCCGCTTATTGATATGC = 20b)
-*   maxEE : définit le nombre maximum d' "erreurs attendues" autorisées dans une lecture. Ce filtre se base sur l'indice Q score. Plus on augmente le chiffre, moins on est strict.
+* truncQ: define un índice de puntuación Q mínimo. En la primera instancia de una puntuación de calidad menor o igual a truncQ, la secuencia se trunca.
+* truncLen: define a qué longitud se truncarán las secuencias. Se eliminan las secuencias más cortas que la longitud.
+* trimLeft: define la longitud que se corta en el lado 5' de las secuencias. Esto permite eliminar los cebadores si no se ha hecho antes.   
+(Cartillas:  
+ITS3_KYO2: GATGAAGAACGYAGYRAA = 18bp  
+ITS4: TCCTCCGCTTATTGATATGC = 20bp)
+* maxEE: define el número máximo de "errores esperados" permitidos en una lectura. Este filtro se basa en el índice de puntuación Q. Cuanto más alto sea el número, menos estricto será.
 
-D'autres paramètres peuvent également être modifiés, ils sont accessibles à la page d'aide de la fonction: ?filterAndTrim.
+También se pueden modificar otros parámetros, que se pueden encontrar en la página de ayuda de la función: ?filterAndTrim.
 
 <br>
 
-
-
-#### Visualisation du filtrage / <span style="color:darkblue">Filtering visualization</span>
+#### Visualización del filtrado
 ```{r out, include=TRUE,cache=TRUE}
-pourc <- cbind((out[,2]/out[,1])*100) # Pourcentage des séquences filtrées / séquences non-filtrées
-pourc_disc <- cbind(out, pourc) # Combine l'objet out et pourc
+pourc <- cbind((out[,2]/out[,1])*100) # Porcentaje de secuencias filtradas / no filtradas
+pourc_disc <- cbind(out, pourc) # Combina el objeto out y pourc
 pourc_disc 
-(mean(out[,2])/mean(out[,1]))*100 # Pourcentage moyen
+(mean(out[,2])/mean(out[,1]))*100 # Porcentaje medio
 ```
 <br>
 
-#### Près de la moitié des séquences n'ont pas passé nos paramètres de filtrage!  
+#### ¡Casi la mitad de las secuencias no pasaron nuestros parámetros de filtrado!  
 
 <center>
 
@@ -193,18 +190,18 @@ pourc_disc
 <br>
 
 >#### <span style="color:red">CHALLENGE</span> 
-Tracer le profil de qualité du premier échantillon une fois filtré et le comparer à son profil de qualité non-filtré. Utiliser la fonction **plotQualityProfile**.  <br>
+Trace el perfil de calidad de la primera muestra filtrada y compárelo con su perfil de calidad sin filtrar. Utilice la función **plotQualityProfile**.  <br>
 
 
-D'autres outils de filtrage existent tel que : [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
-
-<br>
-
-# Apprentissage des taux d'erreur 
+Existen otras herramientas de filtrado como el : [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic). 
 
 <br>
 
-Cet étape consiste à estimer le taux d'erreur de séquençage. Son but est de permettre de différencier les séquences mutantes et les séquences érronées.Le modèle d'erreur est calculé en alternant l'estimation des taux d'erreur et l'inférence de la composition de l'échantillon jusqu'à ce qu'ils convergent vers une solution cohérente. <br> 
+# Aprender las tasas de error 
+
+<br>
+
+Este paso consiste en estimar la tasa de error de secuenciación. El modelo de error se calcula alternando la estimación de las tasas de error y la inferencia de la composición de la muestra hasta que convergen en una solución coherente. <br> 
 
 ```{r err, include=TRUE,cache=TRUE}
 errF <- learnErrors(filtFs)
@@ -212,25 +209,25 @@ errR <- learnErrors(filtRs)
 #multithread=TRUE
 ```
 
-Le nombre minimum de séquences à utiliser pour l'apprentissage des taux d'erreur peut être précisé avec le paramètre *nreads*.  
+El número mínimo de secuencias a utilizar para el entrenamiento de la tasa de error puede especificarse con el parámetro *nreads*.  
 
 <br>
 
-#### Visualisation du taux d'erreur 
+#### Visualización de la tasa de error 
 
 ```{r viz_err, include=TRUE,cache=TRUE,warning=FALSE,fig.height=4,fig.width=5,fig.align='center'}
 plotErrors(errF, nominalQ=TRUE)
 plotErrors(errR, nominalQ=TRUE)
 ```
 
-Les taux d'erreur pour chaque transition  (A->C, A->G,...) sont affichés. Chaque point est un taux d'erreur observé pour chaque score de qualité consensuel. La ligne noire montre l'erreur après convergence. La ligne rouge montre l'erreur sous la définition nominale de la valeur Q (pour la technologie Illumina).  
+Se muestran las tasas de error de cada transición (A->C, A->G,...). Cada punto es una tasa de error observada para cada puntuación de calidad consensuada. La línea negra muestra el error después de la convergencia. La línea roja muestra el error bajo la definición del valor Q nominal (para la tecnología Illumina).  
 
 <br>
 
-# Déreplication  
+# De-replicación  
 <br>
 
-Dans cette étape, toutes les séquences identiques vont être regroupées en *séquences uniques* auxquelles sont attribuées des *abondances*. Cela va diminuer les temps de calcul subséquants en éliminant des comparaisons redondantes. Les séquences dérépliquées prennent le nom des échantillons d'où elles proviennent.  
+En este paso, todas las secuencias idénticas se agruparán en *secuencias únicas* a las que se les asignan *abundancias*. Esto reducirá el tiempo de cálculo posterior al eliminar las comparaciones redundantes. Las secuencias desreplicadas reciben el nombre de las muestras de las que proceden.  
 
 ```{r derep, include=TRUE,cache=TRUE}
 derepFs <- derepFastq(filtFs)
@@ -240,7 +237,7 @@ derepRs <- derepFastq(filtRs)
 names(derepRs) <- sample.names
 ```
 
-L'avantage de DADA2 réside dans la conservation d'un résumé des informations de qualité associées à chaque *séquence unique*. Le profil de qualité consensuel d'une *séquence unique* est la moyenne des qualités de position des lectures dérépliquées. Ces profils de qualité informent le modèle d'erreur de l'étape suivante d'inférence d'échantillon, ce qui augmente considérablement la précision de DADA2. 
+La ventaja de DADA2 es que mantiene un resumen de la información de calidad asociada a cada *secuencia única*. El perfil de calidad de consenso de una *secuencia única* es la media de las calidades posicionales de las lecturas desreplicadas. Estos perfiles de calidad informan al modelo de error del siguiente paso de inferencia de la muestra, lo que aumenta en gran medida la precisión de DADA2. 
 
 <center>
 
@@ -252,7 +249,7 @@ L'avantage de DADA2 réside dans la conservation d'un résumé des informations 
 
 
 
-# Inférence des échantillons  
+# Inferencia de muestras
 <br>
 
 ```{r dada, include=TRUE,cache=TRUE,}
@@ -277,24 +274,24 @@ dadaRs[[1]]
 ```
 <br>
 
-# Fusion des séquences pairées 
+# Fusión de secuencias emparejadas 
 
 <br>
 
 <center>
 
-![FUSION !](https://media.giphy.com/media/TbYgHMnICI1A4/giphy.gif)
+![¡FUSIÓN!](https://media.giphy.com/media/TbYgHMnICI1A4/giphy.gif)
 
 </center>
 
 <br>
 
-Tout l'intérêt du séquençage en paire réside dans le but de fusionner les deux brins afin d'accroitre notre confiance en leur fiabilité. La fusion permet également d'obtenir des amplicons plus long.  
-La fonction **mergePairs** nécessite qu'on lui fournisse les objets calculés dans les deux étapes précédentes (derep et dada). Puis, les paramètres que nous pouvons modifiés librement sont:
+El objetivo de la secuenciación por pares es fusionar las dos cadenas para aumentar nuestra confianza en su fiabilidad. La fusión también permite obtener amplicones más largos.  
+La función **mergePairs** necesita que se le proporcionen los objetos calculados en los dos pasos anteriores (derep y dada). Entonces, los parámetros que podemos modificar libremente son:
 
-*   minOverlap : définit la taille minimale du chevauchement des brins sens et anti-sens pour que leur fusion soit accéptée. Les séquences qui ne fusionnent pas sont éliminées. <br>
-*   maxMismatch : définit le nombre maximal d'incompatibilité nucléotidique dans le chevauchement. <br>
-D'autres paramètres peuvent également être modifiés, ils sont accessibles à la page d'aide de la fonction: ?mergePairs. Par exemple, si returnRejects = TRUE, les paires qui ont été rejetées en raison de discordances dans la région de chevauchement sont conservés dans la sortie.  
+* minOverlap: define el tamaño mínimo del solapamiento de las hebras sentido y antisentido para que su fusión sea exitosa. Las secuencias que no se fusionan se eliminan. <br>
+* maxMismatch: define el número máximo de incompatibilidades de nucleótidos en el solapamiento. <br>
+También se pueden cambiar otros parámetros, están accesibles en la página de ayuda de la función: ?mergePairs. Por ejemplo, si returnRejects = TRUE, los pares rechazados por falta de coincidencia en la región de solapamiento se mantienen en la salida.  
 
 ```{r merge, include=TRUE,cache=TRUE}
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, 
@@ -304,7 +301,7 @@ mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs,
 ```
 <br>
 
-#### Examinons les résultats! 
+#### ¡Veamos los resultados! 
 
 ```{r merge_inspect, include=TRUE,cache=TRUE}
 head(mergers[[1]])
@@ -314,11 +311,11 @@ min(mergers[[1]]$nmatch) # Taille du plus petit chevauchement
 
 <br>
 
-# Tableau des ASVs  
+# Tabla de ASVs  
 
 <br>
 
-Nous avons enfin nos ASVs que nous allons stoquer dans l'objet *seqtab*.   
+Finalmente tenemos nuestros ASVs que pararemos en el objeto *seqtab*.   
 
 
 ```{r seqtab, include=TRUE,cache=TRUE}
@@ -328,12 +325,12 @@ seqtab[,1]
    
 ```
 
-Nous obtenons **`r dim(seqtab)[2]`** ASVs à partir des **`r as.integer(colSums(out)[1])`** séquences brutes que nous avions au début.  
-seqtab[,1] renseigne le nombre de fois qu'on retrouve la séquence du premier ASV dans chaque échantillon.  
+Obtenemos **`r dim(seqtab)[2]`** ASVs a partir de las **`r as.integer(colSums(out)[1])`** secuencias en bruto que teníamos al principio.  
+seqtab[,1] da el número de veces que se encuentra la primera secuencia ASV en cada muestra.  
 
 <br>
 
-#### Inspectons la longueur de nos ASVs 
+#### Inspeccionar la longitud de nuestros ASV 
 
 <br>
 
@@ -342,17 +339,17 @@ hist(nchar(getSequences(seqtab)),xlab="Size", ylab="Frequency", main = "ASVs len
 ```
 <br>
 
-# Suppression des chimères   
+# Eliminación de las quimeras
 <br>
 <center>
 
-![](http://mythologie-grecque.e-monsite.com/medias/images/chime-re-tue-bellerophone.jpg)
+![](Other_materials/medusa.jpg)
 
 </center>
 
 <br>
 
-Cette étape vise à éliminer toutes les séquences non biologiques, les échantillons du tableau des ASV sont regroupés *(method="pooled")* pour l'identification. D'autres méthodes peuvent être utilisées comme la méthode consensus où chaque échantillon est vérifié *individuellement* pour identifier les bimères.  
+Este paso tiene como objetivo eliminar todas las secuencias no biológicas, las muestras del array ASV se agrupan *(method="pooled")* para su identificación. Se pueden utilizar otros métodos, como el método de consenso, en el que cada muestra se comprueba *individualmente* para identificar los bímeros.  
 
 
 ```{r chim_remove, include=TRUE,cache=TRUE}
@@ -364,16 +361,16 @@ seqtab.nochim <- removeBimeraDenovo(seqtab,
 ```
 <br>
 
-#### Examinons les résultats ! 
+#### ¡Veamos los resultados! 
 
 <br>
 
 ```{r chim_dim, include=TRUE,,fig.height=4,fig.width=5,fig.align='center'}
-round((sum(seqtab.nochim)/sum(seqtab)*100),2) # Pourcentage du nombre total de séquences non-chimériques / nombre total de séquences
-hist(nchar(getSequences(seqtab.nochim)),xlab="Size", ylab="Frequency", main = "Non-chimeric ASVs length", xlim=c(250,450), ylim=c(0,250)) # Longueur de séquences non-chimériques
+round((sum(seqtab.nochim)/sum(seqtab)*100),2) # Porcentaje del número total de secuencias no químicas / número total de secuencias
+hist(nchar(getSequences(seqtab.nochim)),xlab="Size", ylab="Frequency", main = "Non-chimeric ASVs length", xlim=c(250,450), ylim=c(0,250)) # Longitud de las secuencias no químicas
 ```
 
-Maintenant nous pouvons transformer les occurences des ASVs en présence / absence. Ceci permet de quantifier le nombre d'ASVs par échantillons.  
+Ahora podemos transformar las apariciones de ASV en presencia/ausencia. Esto nos permite cuantificar el número de ASV por muestra.  
 
 
 ```{r nochim_bin, include=TRUE,cache=TRUE}
@@ -381,27 +378,27 @@ seqtab.nochim.bin <- ifelse(seqtab.nochim>0,1,0)
 ```
 <br>
 
-# Tableau de suivi
+# Cuadro de seguimiento
 <br>
-Le tableau qui suit permet de voir combien de séquences ont été éliminées à chaque étape. Une chute trop grande du nombre de séquences peut indiquer un problème. Par exemple, si peu de séquences passent l'étape de la suppresion des bimères cela peu indiquer qu'il reste des bouts d'amorces avec de nucléotides ambigües.  
+La siguiente tabla muestra cuántas secuencias se han eliminado en cada etapa. Si el número de secuencias desciende demasiado, puede indicar un problema. Por ejemplo, si pocas secuencias superan el paso de eliminación de bímeros, esto puede indicar que todavía hay trozos de cebadores con nucleótidos ambiguos.  
 
 ```{r track, include=TRUE,cache=TRUE}
 getN <- function(x) sum(getUniques(x))
-track <- data.frame(Input=as.numeric(out[,1]), # Séquences brutes 
-                    Filtered=as.numeric(out[,2]), # Séquences filtrées
-                    "Filt//In"=as.numeric(round(((out[,2]/out[,1])*100),2)),# % (Filtrées / Brutes)
-                    Merge = as.numeric(sapply(mergers, getN)), # Mergés 
-                    "Mer//In"=as.numeric(round(((sapply(mergers, getN)/out[,1])*100),2)),# % (Mergés / Brutes)
-                    Nonchim = as.numeric(rowSums(seqtab.nochim)),# Non-chimériques                       
-                    "Nonchim//In"=as.numeric(round(((rowSums(seqtab.nochim)/out[,1])*100),2)),# % (Non-chimériques  / Brutes)
-                    ASV = as.numeric(rowSums(seqtab.nochim.bin))) # Nombre d'ASVs par échantillons 
-rownames(track) <- sample.names # Noms des lignes
+track <- data.frame(Input=as.numeric(out[,1]), 
+                    Filtered=as.numeric(out[,2]),
+                    "Filt//In"=as.numeric(round(((out[,2]/out[,1])*100),2)),
+                    Merge = as.numeric(sapply(mergers, getN)),
+                    "Mer//In"=as.numeric(round(((sapply(mergers, getN)/out[,1])*100),2)),
+                    Nonchim = as.numeric(rowSums(seqtab.nochim)),                       
+                    "Nonchim//In"=as.numeric(round(((rowSums(seqtab.nochim)/out[,1])*100),2)),
+                    ASV = as.numeric(rowSums(seqtab.nochim.bin)))
+rownames(track) <- sample.names
 head(track)
 ```
 
 <br>
 
-Une image vaut mille mots !  
+Una imagen vale más que mil palabras.  
 
 
 ```{r plot_track, include=TRUE,fig.height=4,fig.width=5,fig.align='center'}
@@ -425,16 +422,15 @@ bar_track
 <br> 
   
 
-# Assignation taxonomique   
+# Asignación taxonómica   
 <br>
 
-Nous voyons enfin le bout du pipeline avec cette importante étape d'assignation taxonomique. Grâce à l'implémentation de la méthode de classification naïve bayésienne, la fonction **assignTaxonomy** prend en entrée l'ensemble de séquences à classer ainsi qu'un ensemble de séquences de référence avec une taxonomie connue. Les assignations taxonomiques sont données avec une confiance minimale de bootstrap spécifié avec le paramètre *minBoot*. La base de données de références (UNITE) est accessible sur ce lien https://unite.ut.ee/repository.php. D'autres bases de données sont également [disponibles](https://benjjneb.github.io/dada2/training.html).
+Por fin vemos el final de la tubería con este importante paso de asignación taxonómica. Gracias a la implementación del método de clasificación bayesiano ingenuo, la función **assignTaxonomy** toma como entrada el conjunto de secuencias a clasificar así como un conjunto de secuencias de referencia con una taxonomía conocida. Las asignaciones taxonómicas se dan con una confianza bootstrap mínima especificada con el parámetro *minBoot*. La base de datos de referencia (UNITE) es accesible en este enlace https://unite.ut.ee/repository.php. También hay otras bases de datos [disponibles](https://benjjneb.github.io/dada2/training.html).
 
 
 ```{r assign_taxo, include=TRUE,cache=TRUE}
 taxotab <- assignTaxonomy(seqtab.nochim,
                           refFasta = "reference_database/sh_general_release_dynamic_01.12.2017.fasta",
-                          minBoot = 50, # Par défaut = 50. Bootsrap minimum (représente le niveau de confiance pour l'assignation à un rang taxonomique).
                           multithread=TRUE)
  
 save(taxotab, file = "data/taxotab.rdata")
@@ -442,22 +438,19 @@ save(taxotab, file = "data/taxotab.rdata")
 ```
 <br>
 
-#### Examinons les résultats ! 
+#### ¡Veamos los resultados! 
 
 ```{r taxo_exam, include=TRUE,cache=TRUE}
-# view(taxotab) # Tableau taxonomique au complet 
-write.table(taxotab[1:5,], row.names = FALSE) # Taxonomy des 5 premiers ASV sans la séquence (row.nqmes=FALSE)
-unique(unname(taxotab[,7])) # Nombre d'espèces unique. 
+# view(taxotab)
+write.table(taxotab[1:5,], row.names = FALSE)
+unique(unname(taxotab[,7])) 
 
 ```
 
-Nous obtenons **`r length(unname(taxotab[,7]))`** ASV différents dont **`r length(unique(unname(taxotab[,7])))-1`** identifiés à l'espèce.  
-
-
 
 >#### <span style="color:red">CHALLENGE</span>
- Pouvez-vous trouvez le nombre de famille différentes?    
-
+ ¿Puedes encontrar el número de familias diferentes?    
+ 
 
 # Nota Bene 
 <br>
@@ -468,9 +461,9 @@ Nous obtenons **`r length(unname(taxotab[,7]))`** ASV différents dont **`r leng
 </center>
 <br>
   
-*   Dada2 ne supprime pas les séquences singleton. Cependant, le pipeline n'est pas supposé infèrer des variants de séquence biologique qui ne sont supportés que par une seule séquence - les singletons sont supposés être trop difficiles à différencier des erreurs.
+* Dada2 no elimina las secuencias singleton. Sin embargo, se supone que la línea de producción no puede inferir variantes de secuencias biológicas que sólo se apoyan en una única secuencia, ya que se supone que las secuencias únicas son demasiado difíciles de diferenciar de los errores.
 
-*   DADA2 mesure la diversité de façon cohérente à travers les différents paramètres de filtrage et de taux d'erreur. Les [méthodes OTU](https://twitter.com/bejcal/status/771010634074820608) ne le font pas. 
+* DADA2 mide la diversidad de forma consistente a través de los diferentes parámetros de filtrado y tasa de error. Los [métodos OTU](https://twitter.com/bejcal/status/771010634074820608) no lo hacen. 
 
-*   Les ASV sans assignation d'espèces n'ont pas été assignié à la même espèce dans plus de 50% des affectations basées sur le kmer bootstrap (voir [Wang et al., 2007](https://www.ncbi.nlm.nih.gov/pubmed/17586664) pour plus d'informations sur la méthode de classification bayesienne naïve).  
+* Las ASVs sin asignación de especie no fueron asignadas a la misma especie en más del 50% de las asignaciones kmer bootstrap (ver [Wang et al., 2007](https://www.ncbi.nlm.nih.gov/pubmed/17586664) para más información sobre el método de clasificación bayesiano ingenuo).  
 <br>

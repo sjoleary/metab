@@ -339,7 +339,7 @@ hist(nchar(getSequences(seqtab)),xlab="Size", ylab="Frequency", main = "ASVs len
 <br>
 <center>
 
-![](http://mythologie-grecque.e-monsite.com/medias/images/chime-re-tue-bellerophone.jpg)
+![](Other_materials/medusa.jpg)
 
 </center>
 
