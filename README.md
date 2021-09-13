@@ -53,9 +53,13 @@ Simon Morvan and Alexis Carteron,
 Université de Montréal
 
 ## Data  
-From A. Carteron, S. Joly, M. Beigas, B.L. Turner, E. Laliberté. Major Changes in Soil Fungal Communities Across Soil Horizons and Between Adjacent Forests. In preparation  
-Amplicons obtained through DNA amplification targeting the ITS region (fungal specific) and sequenced on an Illumina MiSeq plateform (paired-end 300 bp).  
+Original data can be found [here](https://doi.org/10.5281/zenodo.3631861), from Carteron A, Beigas M, Joly S, Turner B L, Laliberté E. 2020. Temperate forests dominated by arbuscular or ectomycorrhizal fungi are characterized by strong shifts from saprotrophic to mycorrhizal fungi with increasing soil depth. Microbial Ecology. [DOI](https://doi.org/10.1007/s00248-020-01540-7) [PDF](/article/AAM_MicrobEcol_Carteron_etal_2020.pdf)
+
+Amplicons obtained through DNA amplification targeting the ITS region (fungal specific) and sequenced on an Illumina MiSeq plateform (paired-end 300 bp).
+
 Orignial sequenced data were subsampled, randomly selecting 1,000 pair-end reads per sample (i.e. 128,000 reads in total) to facilite running time in local machine. [_Seqtk_](https://github.com/lh3/seqtk) was used for the subsampling step.
+
+Bioinformatical pipeline for ITS sequences using DADA2 and multivariate analyses of soil fungal communities using R for the article can be found [here](https://doi.org/10.5281/zenodo.3631982)
 
 ## Acknowledgements
 Largely inspired by the tutorials of [_DADA2_](https://benjjneb.github.io/dada2/index.html) and [_Phyloseq_](https://joey711.github.io/phyloseq/)
