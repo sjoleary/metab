@@ -15,10 +15,13 @@ Depuis la démocratisation du séquençage à haut débit, l'utilisation de l'AD
 
 ## Install packages
 ```
-source('http://bioconductor.org/biocLite.R')
-biocLite('phyloseq')
-biocLite('dada2')
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("dada2")
+BiocManager::install("phyloseq")
+
 install.packages(c('ggplot2', 'vegan', 'gtools')
+
 ```
 
 ## Tutorials
@@ -27,13 +30,13 @@ Dada: [https://alexiscarter.github.io/metab/Dada_script.html](https://alexiscart
 Phyloseq: [https://alexiscarter.github.io/metab/Phyloseq_script.html](https://alexiscarter.github.io/metab/Phyloseq_script.html)
 
 [Bilingual Français]  
-Dada: [https://alexiscarter.github.io/metab/Dada_script_FR.html](https://alexiscarter.github.io/metab/Dada_script.html)  
+Dada: [https://alexiscarter.github.io/metab/Dada_script_FR.html](https://alexiscarter.github.io/metab/Dada_script_FR.html)  
 
 [English]  
-Dada: [https://alexiscarter.github.io/metab/Dada_script_EN.html](https://alexiscarter.github.io/metab/Dada_script.html)  
+Dada: [https://alexiscarter.github.io/metab/Dada_script_EN.html](https://alexiscarter.github.io/metab/Dada_script_EN.html)  
 
 [Español]  
-Dada: [https://alexiscarter.github.io/metab/Dada_script_ES.html](https://alexiscarter.github.io/metab/Dada_script.html)  
+Dada: [https://alexiscarter.github.io/metab/Dada_script_ES.html](https://alexiscarter.github.io/metab/Dada_script_ES.html)  
 
 ## To download the repository
 [https://github.com/alexiscarter/metab/archive/master.zip](https://github.com/alexiscarter/metab/archive/master.zip)  
